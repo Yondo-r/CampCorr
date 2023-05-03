@@ -1,0 +1,55 @@
+﻿@model List<CampCorr.ViewModels.ResultadoCorridaViewModel>
+@{
+    ViewData["NomeCampeonato"] = "NomeCampeonato";
+    var resultadoCorridaViewModel = ViewBag.listaResultado;
+    ViewData["LocalEnvento"] = "nomeKartodromo";
+}
+
+<h1>Resultados</h1>
+<div class="table-responsive">
+
+    <table class="table table-dark table-striped table-bordered">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Pos</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Equipe</th>
+                <th scope="col">Pontos</th>
+                <th scope="col">Penalidade</th>
+                <th scope="col">Largada</th>
+                <th scope="col">Tempo Total</th>
+                <th scope="col">Melhor volta</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @for (int i = 0; i < @Model.Count(); i++)
+            {
+                <tr>
+                    <th scope="row"><button class="btn btn-hide" type="button" data-bs-toggle="modal" data-bs-target="#modalCadastroResultado"><img src="~/images/Icones/editar.png" width="16" height="16" /></button></th>
+                    <td>@Model[i].Posicao</td>
+                    <td>@Model[i].NomePiloto</td>
+                    <td>@Model[i].NomeEquipe </td>
+                    <td>@Model[i].Pontos</td>
+                    <td>@Model[i].PontosPenalidade</td>
+                    <td>@Model[i].PosicaoLargada</td>
+                    <td>@Model[i].TempoTotal</td>
+                    <td>@Model[i].TempoMelhorVolta</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@foreach (var resultado in resultadoCorridaViewModel)
+{
+    <partial name="_ResultadoModalForm" for="@resultado"/>
+
+}
+
+@section scripts{
+    <script>
+        function MontaModal(pilotoId, etapaId) {
+            preencheModalResultado("@Url.Action("PostModalResultado")", pilotoId, etapaId)
+        }
+    </script>
+}

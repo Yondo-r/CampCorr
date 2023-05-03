@@ -1,0 +1,73 @@
+﻿@model CampCorr.Models.ResultadoCorrida
+@{
+    var listaEquipes = ViewBag.ListaEquipe;
+    var teste = ViewBag.teste;
+}
+
+
+<div class="modal fade" id="modalCadastroResultado" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="EditarResultado">
+                <div class="modal-body">
+                        <input asp-for="PilotoId" class="form-control" value="@Model.PilotoId" />
+                        <input type="hidden" asp-for="EquipeId" class="form-control" value="@Model.EquipeId" />
+                    <div class="form-group">
+                        @*<label for="" class="control-label"></label>*@
+                       @* <a class="form-control">@teste</a>*@
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Posicao" class="control-label"></label>
+                        <input asp-for="Posicao" class="form-control" value="4" />
+                        <span asp-validation-for="Posicao" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        @*<label asp-for="NomeEquipe" class="control-label"></label>*@
+                        @Html.DropDownList("EquipeId", new SelectList(listaEquipes, "EquipeId", "Nome"), new {@class = "form-select"})
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label asp-for="MelhorVolta" class="control-label"></label>
+                        <input type="checkbox" asp-for="MelhorVolta" class="form-check-input" value="@Model.MelhorVolta" />
+                        <span asp-validation-for="MelhorVolta" class="text-danger"></span>
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label asp-for="PosicaoLargada" class="control-label"></label>
+                        <input asp-for="PosicaoLargada" class="form-control" value="@Model.PosicaoLargada" />
+                        <span asp-validation-for="PosicaoLargada" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TempoMelhorVolta" class="control-label"></label>
+                        <input asp-for="TempoMelhorVolta" class="form-control" value="@Model.TempoMelhorVolta" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TempoTotal" class="control-label"></label>
+                        <input asp-for="TempoTotal" class="form-control" value="@Model.TempoTotal" />
+                        <span asp-validation-for="TempoTotal" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PontosPenalidade" class="control-label"></label>
+                        <input asp-for="PontosPenalidade" class="form-control" value="@Model.PontosPenalidade" />
+                        <span asp-validation-for="PontosPenalidade" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DescricaoPenalidade" class="control-label"></label>
+                        <input asp-for="DescricaoPenalidade" class="form-control" value="@Model.DescricaoPenalidade" />
+                        <span asp-validation-for="DescricaoPenalidade" class="text-danger"></span>
+                    </div>
+                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-primary" value="Salvar" />
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>

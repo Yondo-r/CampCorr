@@ -1,0 +1,76 @@
+﻿@model CampCorr.ViewModels.CampeonatoViewModel
+
+@{
+    ViewData["Title"] = "Editar";
+}
+
+<h1>Editar</h1>
+
+<h4>Temporada</h4>
+
+<hr />
+
+<div class="form-outline form-white mb-4">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @*<input type="hidden" asp-for="IdCampeonato" />*@
+        <div class="form-group">
+            <label asp-for="AnoTemporada" class="control-label"></label>
+            <input asp-for="AnoTemporada" class="form-control" />
+            <span asp-validation-for="AnoTemporada" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="QuantidadeEtapas" class="control-label"></label>
+            <input asp-for="QuantidadeEtapas" class="form-control" />
+            <span asp-validation-for="QuantidadeEtapas" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Regulamento" class="control-label"></label>
+            <input asp-for="Regulamento" class="form-control" />
+            <span asp-validation-for="Regulamento" class="text-danger"></span>
+        </div>
+        <hr />
+        <div class="form-group">
+            <a asp-action="VisualizarPilotosTemporada" asp-route-anoTemporada="@Model.AnoTemporada" value="Vizualizar Pilotos" style="margin-top:2%" class="botaoNavegacao btn" >Pilotos da temporada</a>
+            <a asp-action="VisualizarEquipes" asp-controller="Equipes" asp-route-anoTemporada="@Model.AnoTemporada" value="Visualizar Equipes" style="margin-top:2%" class="btn botaoNavegacao" >Equipes da temporada</a>
+        </div>
+        
+        <div class="form-group" >
+            <a asp-action="AdicionarPilotosEquipe" asp-controller="Equipes" asp-route-anoTemporada="@Model.AnoTemporada" value="Visualizar Equipes" class="btn botaoNavegacao" >Adicionar pilotos nas equipes</a>
+        </div>
+        <hr />
+        <div class="form-group">
+            <input type="submit" value="Salvar" class="btn btn-primary  col-4" />
+        </div>
+        <hr />
+        @if (Model.Etapas.Count() > 0)
+        {
+            <div>
+                Editar Etapa
+            </div>
+            @foreach (var item in Model.Etapas)
+            {
+                <div class="alert alert-etapa">
+                    <a class="btn" style="color:azure" asp-action="Edit" asp-controller="Etapas" asp-route-numeroEtapa="@item.NumeroEvento.Substring(0,1)" asp-route-ano="@item.Data.Year">
+                        @item.NumeroEvento.ToString()
+                        @item.Data.ToShortDateString()
+                        @item.Kartodromo.Nome.ToString()
+                    </a>
+                </div>
+            }
+        }
+        @if (Model.QuantidadeEtapas > Model.Etapas.Count())
+        {
+            <div>
+                <a asp-action="Create" asp-area="Admin" asp-controller="Etapas" asp-route-anoTemporada="@Model.AnoTemporada"> Adicionar Etapa </a>
+            </div>
+        }
+
+
+    </form>
+</div>
+
+
+<div>
+    <a asp-action="Edit" asp-controller="Campeonatos">Voltar a lista de temporadas</a>
+</div>

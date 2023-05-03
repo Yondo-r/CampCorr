@@ -1,0 +1,64 @@
+﻿@model CampCorr.ViewModels.CampeonatoViewModel
+
+@{
+    ViewData["Title"] = "Editar";
+}
+
+<h1>Editar</h1>
+
+<h4>Campeonato</h4>
+
+<hr />
+
+<div class="form-outline form-white mb-4">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="NomeCampeonato" class="control-label"></label>
+            <input asp-for="NomeCampeonato" class="form-control" />
+            <span asp-validation-for="NomeCampeonato" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Logo" class="control-label"></label>
+            <input asp-for="Logo" class="form-control" />
+            <span asp-validation-for="Logo" class="text-danger"></span>
+        </div>
+        <hr />
+        <div class="form-group">
+            <a asp-action="VisualizarPilotosCampeonato" asp-controller="Campeonatos"  class="botaoNavegacao btn">Pilotos do Campeonato</a> 
+        </div>
+
+        <hr />
+        <div class="form-group">
+            <input type="submit" value="Salvar" class="btn btn-primary" />
+        </div>
+        <hr />
+        @if (Model.Temporadas.Count() > 0)
+        {
+            <div>
+                Editar temporada
+            </div>
+            <div>
+                @foreach (var item in Model.Temporadas)
+                {
+                    <a class="btn btn-secondary btn-block" asp-action="Edit" asp-controller="Temporadas" asp-route-ano="@item.AnoTemporada">
+                        @item.AnoTemporada.ToString()
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div>
+                <a asp-action="Create" asp-area="Admin" asp-controller="Temporadas"> Adicionar temporada </a>
+            </div>
+        }
+
+
+    </form>
+</div>
+
+
+<div>
+    <a asp-action="Index" asp-area="" asp-controller="Home">Voltar a página inicial</a>
+</div>

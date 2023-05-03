@@ -1,0 +1,104 @@
+﻿@model ReflectionIT.Mvc.Paging.PagingList<CampCorr.ViewModels.CampeonatoViewModel>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+
+<body class="fundoPadrao text-center">
+
+
+    @if (User.IsInRole("Adm"))
+    {
+        <h2 class="fw-bold mb-2 text-uppercase">Editar Campeonatos</h2>
+        <hr />
+        <div class="form-outline mb-5">
+            <a class="btn btn-outline-light btn-lg px-5" asp-area="Admin" asp-controller="Campeonatos" asp-action="Edit">Configurações de campeonato</a>
+        </div>
+        <div class="form-outline mb-5">
+            <a class="btn btn-outline-light btn-lg px-5" asp-area="Admin" asp-controller="Resultados" asp-action="Index">Ver resultados</a>
+        </div>
+    }
+    else if (User.IsInRole("Piloto"))
+    {
+        <h2 class="fw-bold mb-2 text-uppercase">Bem vindo, @User.Identity.Name</h2>
+        <h4> Tabela Campeonato</h4>
+        <a class="btn btn-primary" asp-area="Piloto" asp-controller="Pilotos" asp-action="Cadastro">Exibir dados</a>
+    }
+    else
+    {
+        <h2 class="fw-bold mb-2 text-uppercase">Campeonatos</h2>
+        <p class="text-white-50 mb-5">Informe qual campeonato você deseja obter informações</p>
+
+        <div class="form-outline form-white mb-4">
+            <form method="get" class="form-inline">
+                <input name="filter" class="form-control" placeholder="Digite o nome do campeonato" value="@Model.RouteValue["Filter"]" />
+                <div class="form-outline mb-5" style="margin-top: 3%">
+                    <button type="submit" class="btn btn-secondary btn-lg px-5">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div> Total de Campeonatos : @Model.TotalRecordCount </div>
+        <div>
+            <vc:pager paging-list="@Model"></vc:pager>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table text-white">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NomeCampeonato)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Logo)
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NomeCampeonato)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Logo)
+                                </td>
+
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.IdCampeonato">Detalhes</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+
+        <div class="form-outline mb-5">
+            <p class="text-white-50">Clique abaixo caso deseje acessar o seu perfil no sistema</p>
+            <a class="btn btn-outline-light btn-lg px-5" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@string.Format("{0}{1}", Context.Request.Path, Context.Request.QueryString)">Logar</a>
+        </div>
+
+
+        <div>
+            <p class="mb-0">
+                Deseja criar um novo campeonato? <a asp-controller="Account" asp-action="Register" asp-route-area="Adm">Novo campeonato</a>
+            </p>
+        </div>
+
+    }
+
+
+
+</body>

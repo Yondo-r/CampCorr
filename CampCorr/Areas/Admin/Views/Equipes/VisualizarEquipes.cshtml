@@ -1,0 +1,87 @@
+﻿@model IEnumerable<CampCorr.Models.Equipe>
+@{
+    ViewData["Title"] = "Vizualizar Equipes";
+    List<Equipe> equipesAdicionadas = ViewBag.equipesAdicionadas;
+    List<Equipe> equipesNaoAdicionadas = ViewBag.equipesNaoAdicionadas;
+    List<Equipe> equipesCadastradas = ViewBag.equipesCadastradas;
+    int n = 0;
+}
+
+<h1>Selecione as equipes</h1>
+
+<hr />
+<h4 class="cabecalho-sombra">Equipes do Campeonato disponíveis</h4>
+<div class="form-outline">
+    @if (equipesCadastradas.Count() != 0)
+    {
+        <ul>
+            @foreach (var item in equipesNaoAdicionadas)
+            {
+                <li class="lista-item">
+                    <input class="form-check-input" name="check-list-AddEquipe" type="checkbox" value="@item.EquipeId">
+                    @Html.DisplayFor(x => item.Nome)
+                </li>
+            }
+        </ul>
+        <div class="form-group">
+            <button onclick="AddEquipes(@TempData["anoTemporada"])" class="btn btn-secondary">Adicionar</button>
+        </div>
+    }
+    else
+    {
+        <div>
+            <h6 class="text-info">Não Existem equipes disponíveis!!!</h6>
+        </div>
+    }
+</div>
+
+
+
+<h4 class="cabecalho-sombra">Equipes da temporada @TempData["anoTemporada"]</h4>
+@if (equipesAdicionadas.Count() != 0)
+{
+    <ul>
+        @foreach (var item in equipesAdicionadas)
+        {
+            <li class="lista-item">
+                <input class="form-check-input" name="check-list-RemoverEquipes" type="checkbox" value="@item.EquipeId">
+                @Html.DisplayFor(x => equipesAdicionadas[n].Nome)
+                @{
+                    n++;
+                }
+            </li>
+        }
+    </ul>
+    <button onclick="RemoverEquipes(@TempData["anoTemporada"])" name="check-list-RemoverEquipes" class="btn btn-secondary">Remover Equipes</button>
+}
+else
+{
+    <h6 class="text-info">Nenhuma equipe adicionada até o momento</h6>
+}
+<hr />
+<a asp-action="Create" asp-route-anoTemporada="@TempData["anoTemporada"]" value="Criar equipe" class="btn btn-primary">Criar Equipe</a>
+</>
+<hr />
+<div>
+    <a asp-action="Edit" asp-controller="Temporadas" asp-route-ano="@TempData["anoTemporada"]">Voltar a lista de temporadas</a>
+</div>
+
+@section scripts{
+    <script>
+
+        function AddEquipes(anoTemporada) {
+            var ids = [];
+            $('input[name="check-list-AddEquipe"]:checked').each(function() {
+                ids.push(this.value);
+            });
+            equipesAdd("@Url.Action("PostAddEquipes")", ids, anoTemporada)
+        }
+        function RemoverEquipes(anoTemporada) {
+            var ids = []
+            $('input[name="check-list-RemoverEquipes"]:checked').each(function() {
+                ids.push(this.value);
+            });
+            equipesRemover("@Url.Action("PostRemoverEquipes")", ids, anoTemporada)
+        }
+    </script>
+}

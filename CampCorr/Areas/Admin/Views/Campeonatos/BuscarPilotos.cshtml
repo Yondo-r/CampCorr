@@ -1,0 +1,70 @@
+﻿@model ReflectionIT.Mvc.Paging.PagingList<CampCorr.ViewModels.PilotoViewModel>
+@{
+    var filtro = new PilotoViewModel();
+}
+
+<h2 class="fw-bold mb-2 text-uppercase">Pilotos</h2>
+<p class="text-white-50 mb-5">Busque pelo piloto para adiciona-lo ao campeonato</p>
+
+<div class="form-outline form-white mb-4">
+    <form method="get" class="form-inline">
+        <div class="form-group">
+            <label asp-for="@filtro.UserLogin" class="control-label"></label>
+            <input asp-for="@filtro.UserLogin" class="form-control" placeholder="Digite o Usuário do piloto" />
+        </div>
+        <div class="form-group">
+            <label asp-for="@filtro.NomePiloto" class="control-label"></label>
+            <input asp-for="@filtro.NomePiloto" class="form-control" placeholder="Digite o nome do piloto" />
+        </div>
+        <div class="form-outline mb-5" style="margin-top: 3%">
+            <button type="submit" class="btn btn-secondary btn-lg px-5">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Buscar
+            </button>
+        </div>
+    </form>
+</div>
+
+<div> Total de pilotos : @Model.TotalRecordCount </div>
+<div>
+    <vc:pager paging-list="@Model"></vc:pager>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table text-white">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.NomePiloto)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UserLogin)
+                    </th>
+                    <th>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.NomePiloto)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserLogin)
+                        </td>
+
+                        <td>
+                            <a asp-action="AddPilotoCampeonato" asp-route-pilotoId="@item.PilotoId" class="btn btn-secondary">Adicionar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<div>
+    <a asp-action="VisualizarPilotosCampeonato" asp-controller="Campeonatos">Voltar</a>
+</div>

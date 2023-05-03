@@ -1,0 +1,85 @@
+﻿@model IEnumerable<CampCorr.ViewModels.PilotoViewModel>
+@{
+    ViewData["Title"] = "Visualizar Pilotos";
+    List<PilotoViewModel> ListaPilotosCampeonato = ViewBag.ListaPilotosCampeonato;
+    List<PilotoViewModel> ListaPilotosTemporadaAdicionado = ViewBag.ListaPilotosTemporadaAdicionado;
+    List<PilotoViewModel> ListaPilotosTemporadaNaoAdicionado = ViewBag.ListaPilotosTemporadaNaoAdicionado;
+    int n = 0;
+}
+
+<h1>Selecione os pilotos</h1>
+
+<hr />
+<h4 class="cabecalho-sombra">Pilotos do Campeonato disponíveis</h4>
+<div class="form-outline">
+    @if (ListaPilotosCampeonato.Count() != 0)
+    {
+        <ul>
+            @foreach (var item in ListaPilotosTemporadaNaoAdicionado)
+            {
+                <li class="lista-item">
+                    <input class="form-check-input" name="check-list-AddPiloto" type="checkbox" value="@item.PilotoId">
+                    @Html.DisplayFor(x => item.NomePiloto)
+                </li>
+            }
+        </ul>
+        <div class="form-group">
+            <button onclick="AddPilotos(@TempData["anoTemporada"])" class="btn btn-secondary">Adicionar</button>
+        </div>
+    }
+    else
+    {
+        <div>
+            <h6 class="text-info">Não Existem pilotos disponíveis!!!</h6>
+        </div>
+    }
+</div>
+
+
+
+<h4 class="cabecalho-sombra">Pilotos da temporada @TempData["anoTemporada"]</h4>
+@if (ListaPilotosTemporadaAdicionado.Count() != 0)
+{
+    <ul>
+        @foreach (var item in ListaPilotosTemporadaAdicionado)
+        {
+            <li class="lista-item">
+                <input class="form-check-input" name="check-list-RemoverPilotos" type="checkbox" value="@item.PilotoId">
+                @Html.DisplayFor(x => ListaPilotosTemporadaAdicionado[n].NomePiloto)
+                @{
+                    n++;
+                }
+            </li>
+        }
+    </ul>
+    <button onclick="RemoverPilotos(@TempData["anoTemporada"])" name="check-list-RemoverPilotos" class="btn btn-secondary">Remover Pilotos</button>
+}
+else
+{
+    <h6 class="text-info">Nenhum piloto adicionado até o momento</h6>
+}
+
+<hr />
+<div>
+    <a asp-action="Edit" asp-controller="Temporadas" asp-route-ano="@TempData["anoTemporada"]">Voltar a lista de temporadas</a>
+</div>
+
+@section scripts{
+    <script>
+
+        function AddPilotos(anoTemporada) {
+            var ids = [];
+            $('input[name="check-list-AddPiloto"]:checked').each(function() {
+                ids.push(this.value);
+            });
+            pilotosAdd("@Url.Action("PostAddPilotos")", ids, anoTemporada)
+        }
+        function RemoverPilotos(anoTemporada) {
+            var ids = []
+            $('input[name="check-list-RemoverPilotos"]:checked').each(function() {
+                ids.push(this.value);
+            });
+            pilotosRemover("@Url.Action("PostRemoverPilotos")", ids, anoTemporada)
+        }
+    </script>
+    }

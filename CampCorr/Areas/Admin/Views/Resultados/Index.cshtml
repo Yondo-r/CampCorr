@@ -1,0 +1,39 @@
+﻿@model CampCorr.Models.Etapa
+@{
+    ViewData["Title"] = "Index";
+    List<Etapa> listaEtapas = ViewBag.listaEtapas;
+    List<Temporada> listaTemporadas = ViewBag.listaTemporadas;
+}
+
+@*Verificar se temporada e etapa estão concluídos e exibir em cor diferente*@
+<h1>Selecione a temporada</h1>
+
+<ul>
+    @foreach (var temporada in listaTemporadas)
+    {
+        var collapse = "#coll" + temporada.AnoTemporada.ToString();
+        var collpaseId = "coll" + temporada.AnoTemporada.ToString();
+        <li class="lista-item">
+            <button class="btn btn-secondary" data-bs-toggle="collapse" href="@collapse">@temporada.AnoTemporada</button>
+            <div class="collapse" id="@collpaseId">
+                <div class="card card-body">
+                    @foreach (var etapa in listaEtapas)
+                    {
+                        if (etapa.TemporadaId == temporada.TemporadaId)
+                        {
+                            <form asp-action="ResultadoCorrida">
+                                <div class="lista-item">
+                                    <input type="hidden" asp-for="EtapaId"value="@etapa.EtapaId" />
+                                    <input type="hidden" asp-for="Data"value="@etapa.Data" />
+
+                                    <input type="submit" class="btn" style="color:azure" value="@etapa.NumeroEvento - @etapa.Kartodromo.Nome" />
+                                </div>
+                            </form>
+                        }
+                    }
+                </div>
+            </div>
+        </li>
+    }
+</ul>
+
