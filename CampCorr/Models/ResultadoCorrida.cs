@@ -13,16 +13,19 @@ namespace CampCorr.Models
         public int PilotoId { get; set; }
         [Display(Name ="Descrição da penalidade aplicada")]
         public string DescricaoPenalidade { get; set; }
+        [Display(Name = "Pontos de penalidade")]
         public int? PontosPenalidade { get; set; }
-        [Display(Name = "Melhor volta do piloto")]
+        [Display(Name = "Melhor volta da prova")]
         public bool MelhorVolta { get; set; }
-        [DataType(DataType.Time)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:mm:ss.ff}")]
-        public DateTime? TempoMelhorVolta { get; set; }
-        [Display(Name ="Posição em que o piloto largou")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:mm:ss.fff}")]
+        [Display(Name = "Tempo da melhor volta")]
+        public TimeSpan? TempoMelhorVolta { get; set; }
+        [Display(Name = "Numero total de voltas")]
+        public int? TotalVoltas { get; set; }
+        [Display(Name ="Posição de largada")]
         public int? PosicaoLargada { get; set; }
-        [DataType(DataType.Time)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:HH:mm:ss.ff}")]
-        public DateTime? TempoTotal { get; set; }
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:HH:mm:ss.fff}")]
+        [Display(Name = "Tempo total da prova")]
+        public TimeSpan? TempoTotal { get; set; }
     }
 }

@@ -1,10 +1,16 @@
 ﻿@model CampCorr.Models.ResultadoCorrida
+@*@model CampCorr.ViewModels.ResultadoCorridaViewModel*@
 @{
     var listaEquipes = ViewBag.ListaEquipe;
     var teste = ViewBag.teste;
 }
 
-
+@if (ViewBag.ShowModal == true)
+{
+    <script>
+        $('#modalCadastroResultado').modal('show');
+    </script>
+}
 <div class="modal fade" id="modalCadastroResultado" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
@@ -14,12 +20,13 @@
             </div>
             <form asp-action="EditarResultado">
                 <div class="modal-body">
-                        <input asp-for="PilotoId" class="form-control" value="@Model.PilotoId" />
-                        <input type="hidden" asp-for="EquipeId" class="form-control" value="@Model.EquipeId" />
+                    <input asp-for="PilotoId" class="form-control" value="@Model.PilotoId" />
+                    <input type="hidden" asp-for="EquipeId" class="form-control" value="@Model.EquipeId" />
                     <div class="form-group">
                         @*<label for="" class="control-label"></label>*@
-                       @* <a class="form-control">@teste</a>*@
+                        @* <a class="form-control">@teste</a>*@
                     </div>
+                    
                     <div class="form-group">
                         <label asp-for="Posicao" class="control-label"></label>
                         <input asp-for="Posicao" class="form-control" value="4" />
@@ -27,7 +34,7 @@
                     </div>
                     <div class="form-group">
                         @*<label asp-for="NomeEquipe" class="control-label"></label>*@
-                        @Html.DropDownList("EquipeId", new SelectList(listaEquipes, "EquipeId", "Nome"), new {@class = "form-select"})
+                        @Html.DisplayFor(x => x.EtapaId)
                     </div>
                     <hr />
                     <div class="form-group">
@@ -61,12 +68,12 @@
                         <span asp-validation-for="DescricaoPenalidade" class="text-danger"></span>
                     </div>
                 </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <div class="form-group">
-                    <input type="submit" class="btn btn-primary" value="Salvar" />
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary" value="Salvar" />
+                    </div>
                 </div>
-            </div>
             </form>
         </div>
     </div>

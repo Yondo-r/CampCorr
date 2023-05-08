@@ -21,14 +21,11 @@
                     {
                         if (etapa.TemporadaId == temporada.TemporadaId)
                         {
-                            <form asp-action="ResultadoCorrida">
+                            
                                 <div class="lista-item">
-                                    <input type="hidden" asp-for="EtapaId"value="@etapa.EtapaId" />
-                                    <input type="hidden" asp-for="Data"value="@etapa.Data" />
-
-                                    <input type="submit" class="btn" style="color:azure" value="@etapa.NumeroEvento - @etapa.Kartodromo.Nome" />
+                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure" >@etapa.NumeroEvento - @etapa.Kartodromo.Nome</a>
                                 </div>
-                            </form>
+                            
                         }
                     }
                 </div>

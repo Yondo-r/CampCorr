@@ -6,6 +6,7 @@ using CampCorr.Repositories.Interfaces;
 using CampCorr.Models;
 using CampCorr.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace CampCorr.Areas.Admin.Controllers
 {
@@ -49,66 +50,69 @@ namespace CampCorr.Areas.Admin.Controllers
             {
                 etapa.Kartodromo = _etapaRepository.BuscarKartodromo(etapa.KartodromoId);
             }
-            
+
             ViewBag.listaEtapas = listaEtapa;
             ViewBag.listaTemporadas = listaTemporada;
             return View();
         }
-        [HttpPost]
-        public IActionResult ResultadoCorrida(Etapa etapa)
+
+        public IActionResult ResultadoCorrida(int etapaId)
         {
             //encriptar id para dificultar a alteração de resultados
-            
-            if (!_etapaRepository.ValidarEtapa(etapa.EtapaId, etapa.Data))
-            {
-                ModelState.AddModelError("Dados inválidos", "Não foi possível Continuar");
-            }
-            if (ModelState.IsValid)
-            {
-                etapa.TemporadaId = _context.Etapas.Where(x => x.EtapaId == etapa.EtapaId).Select(x => x.TemporadaId).FirstOrDefault();
-                var listaEquipes = _equipeRepository.PreencherListaEquipesAdicionadas(etapa.TemporadaId);
-                ViewBag.ListaEquipe = listaEquipes;
-                etapa = _etapaRepository.BuscarEtapaPorId(etapa.EtapaId);
-                var listaResultadoVm = MontaListaResultadoVm(etapa);
-                var listaResultado = MontaListaResultado(listaResultadoVm);
-                ViewBag.listaResultado = listaResultado;
-                return View(listaResultadoVm);
-            }
+
+            var etapa = _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefault();
+
+            var listaEquipes = _equipeRepository.PreencherListaEquipesAdicionadas(etapa.TemporadaId);
+            ViewBag.ListaEquipe = listaEquipes;
+            etapa = _etapaRepository.BuscarEtapaPorId(etapa.EtapaId);
+            var listaResultadoVm = MontaListaResultadoVm(etapa);
+            ViewBag.listaResultado = listaResultadoVm;
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarResultado( 
-            [Bind("ResultadoId,PilotoId,EquipeId,Posicao,MelhorVolta,PosicaoLargada,TempoMelhorVolta,TempoTotal,PontosPenalidade,DescricaoPenalidade")] 
+
+        public async Task<IActionResult> EditarResultado(string tempoMelhorVolta, string tempoTotal,
+            [Bind("ResultadoId,PilotoId,EquipeId,EtapaId,Posicao,MelhorVolta,PosicaoLargada,TotalVoltas,PontosPenalidade,DescricaoPenalidade")]
         ResultadoCorrida resultadoCorrida)
         {
-
+            resultadoCorrida.TempoMelhorVolta = string.IsNullOrEmpty(tempoMelhorVolta) ? default : TimeSpan.ParseExact(tempoMelhorVolta, "mm':'ss':'fff", CultureInfo.InvariantCulture);
+            resultadoCorrida.TempoTotal = string.IsNullOrEmpty(tempoTotal) ? TimeSpan.Parse("0") : TimeSpan.ParseExact(tempoTotal, "hh':'mm':'ss':'fff", CultureInfo.InvariantCulture);
+            if (resultadoCorrida.ResultadoId == 0)
+            {
+                resultadoCorrida.ResultadoId = await _context.ResultadosCorrida
+                    .Where(x => x.EtapaId == resultadoCorrida.EtapaId && x.PilotoId == resultadoCorrida.PilotoId)
+                    .Select(x => x.ResultadoId).FirstOrDefaultAsync();
+            }
             //Pega os dados, faz o cálculo e salva no banco.
             var etapa = _etapaRepository.BuscarEtapaPorId(resultadoCorrida.EtapaId);
-            var resultadoVm = _resultadoRepository.BuscarPilotoResultadoEtapa(resultadoCorrida.EtapaId, resultadoCorrida.PilotoId);
             if (ModelState.IsValid)
             {
                 _context.Update(resultadoCorrida);
                 await _context.SaveChangesAsync();
             }
-            return View(resultadoVm);
-            //return RedirectToAction("ResultadoCorrida", new { etapa });
+            ViewBag.listaResultado = MontaListaResultadoVm(etapa);
+            return RedirectToAction("ResultadoCorrida", new { etapaId = etapa.EtapaId });
         }
 
-        //public ActionResult PostModalResultado(int pilotoId, int etapaId)
-        //{
-        //    var resultado = _resultadoRepository.BuscarPilotoResultadoEtapa(etapaId, pilotoId); //_context.ResultadosCorrida.Where(x => x.PilotoId == pilotoId && x.EtapaId == etapaId).FirstOrDefault();
-        //    return PartialView("_ResultadoModalForm", resultado);
-        //}
 
+        private ResultadoCorrida MontaResultado(int etapaId, int pilotoId)
+        {
+            ResultadoCorrida resultado = new ResultadoCorrida()
+            {
+                EtapaId = etapaId,
+                PilotoId = pilotoId,
+                EquipeId = _equipeRepository.BuscarEquipe(etapaId, pilotoId).EquipeId
+            };
+            return resultado;
+
+        }
         private List<ResultadoCorrida> MontaListaResultado(List<ResultadoCorridaViewModel> resultadoVm)
         {
             List<ResultadoCorrida> listaResultado = new List<ResultadoCorrida>();
             foreach (var resultado in resultadoVm)
             {
                 var resultadoCorrida = new ResultadoCorrida();
-                
+
                 resultadoCorrida.PilotoId = resultado.PilotoId;
                 resultadoCorrida.EtapaId = resultado.EtapaId;
                 resultadoCorrida.Posicao = resultado.Posicao;
@@ -119,7 +123,7 @@ namespace CampCorr.Areas.Admin.Controllers
                 resultadoCorrida.TempoTotal = resultado.TempoTotal;
                 resultadoCorrida.PontosPenalidade = resultado.PontosPenalidade;
                 resultadoCorrida.DescricaoPenalidade = resultado.DescricaoPenalidade;
-                
+
                 listaResultado.Add(resultadoCorrida);
             }
             return listaResultado;
@@ -135,7 +139,7 @@ namespace CampCorr.Areas.Admin.Controllers
                 var resultado = _resultadoRepository.BuscarPilotoResultadoEtapa(etapa.EtapaId, piloto.PilotoId);
                 listaResultadoVm.Add(resultado);
             }
-            
+
             return listaResultadoVm;
         }
     }

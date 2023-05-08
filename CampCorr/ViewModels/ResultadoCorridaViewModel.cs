@@ -18,18 +18,18 @@ namespace CampCorr.ViewModels
         public string DescricaoPenalidade { get; set; }
         [Display(Name = "Pontos de penalidade")]
         public int? PontosPenalidade { get; set; }
-        [Display(Name = "Indacador de melhor volta da corrida")]
+        [Display(Name = "Melhor volta da corrida")]
         public bool MelhorVolta { get; set; }
         [Display(Name = "Posição de largada")]
         public int? PosicaoLargada { get; set; }
         [Display(Name = "Tempo total da prova")]
-        [DataType(DataType.Time)]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:HH:mm:ss.ff}")]
-        public DateTime? TempoTotal { get; set; }
+        public TimeSpan? TempoTotal { get; set; }
         [Display(Name = "Tempo da melhor volta")]
-        [DataType(DataType.Time)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:mm:ss.ff}")]
-        public DateTime? TempoMelhorVolta { get; set; }
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:mm:ss.fff}")]
+        public TimeSpan? TempoMelhorVolta { get; set; }
+        [Display(Name = "Numero total de voltas")]
+        public int? TotalVoltas { get; set; }
         public int PilotoId { get; set; }
         public int EtapaId { get; set; }
         public int ResultadoId { get; set; }

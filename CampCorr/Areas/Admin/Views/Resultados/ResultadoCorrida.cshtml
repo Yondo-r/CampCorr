@@ -1,14 +1,16 @@
-﻿@model List<CampCorr.ViewModels.ResultadoCorridaViewModel>
+﻿@*@model List<CampCorr.ViewModels.ResultadoCorridaViewModel>*@
+@*@model List<CampCorr.Models.ResultadoCorrida>*@
+@model CampCorr.Models.ResultadoCorrida
 @{
     ViewData["NomeCampeonato"] = "NomeCampeonato";
-    var resultadoCorridaViewModel = ViewBag.listaResultado;
+    List<ResultadoCorridaViewModel> resultadoCorridaViewModel = ViewBag.listaResultado;
     ViewData["LocalEnvento"] = "nomeKartodromo";
 }
 
 <h1>Resultados</h1>
 <div class="table-responsive">
 
-    <table class="table table-dark table-striped table-bordered">
+    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultado">
         <thead>
             <tr>
                 <th scope="col"></th>
@@ -18,38 +20,247 @@
                 <th scope="col">Pontos</th>
                 <th scope="col">Penalidade</th>
                 <th scope="col">Largada</th>
-                <th scope="col">Tempo Total</th>
+                <th scope="col">Tempo total</th>
+                <th scope="col">Total de voltas</th>
+                <th scope="col">Tempo Melhor volta</th>
                 <th scope="col">Melhor volta</th>
+                <th style="display:none"></th>
+                <th style="display:none"></th>
+                <th style="display:none"></th>
             </tr>
         </thead>
         <tbody class="table-group-divider">
-            @for (int i = 0; i < @Model.Count(); i++)
+            @for (int i = 0; i < @resultadoCorridaViewModel.Count(); i++)
             {
-                <tr>
-                    <th scope="row"><button class="btn btn-hide" type="button" data-bs-toggle="modal" data-bs-target="#modalCadastroResultado"><img src="~/images/Icones/editar.png" width="16" height="16" /></button></th>
-                    <td>@Model[i].Posicao</td>
-                    <td>@Model[i].NomePiloto</td>
-                    <td>@Model[i].NomeEquipe </td>
-                    <td>@Model[i].Pontos</td>
-                    <td>@Model[i].PontosPenalidade</td>
-                    <td>@Model[i].PosicaoLargada</td>
-                    <td>@Model[i].TempoTotal</td>
-                    <td>@Model[i].TempoMelhorVolta</td>
+                <tr data-id="@resultadoCorridaViewModel[i].PilotoId">
+                    <th scope="row"><button class="btn btn-hide editar-btn" type="button"><img src="~/images/Icones/editar.png" width="16" height="16" /></button></th>
+                    <td>@resultadoCorridaViewModel[i].Posicao</td>
+                    <td>@resultadoCorridaViewModel[i].NomePiloto</td>
+                    <td>@resultadoCorridaViewModel[i].NomeEquipe </td>
+                    <td>@resultadoCorridaViewModel[i].Pontos</td>
+                    <td>@resultadoCorridaViewModel[i].PontosPenalidade</td>
+                    <td>@resultadoCorridaViewModel[i].PosicaoLargada</td>
+                    <td>@String.Format("{0:hh\\:mm\\:ss\\.fff}", resultadoCorridaViewModel[i].TempoTotal)</td>
+                    <td>@resultadoCorridaViewModel[i].TotalVoltas</td>
+                    <td>@String.Format("{0:mm\\:ss\\.fff}", resultadoCorridaViewModel[i].TempoMelhorVolta)</td>
+                    <td>@(resultadoCorridaViewModel[i].MelhorVolta ? "Sim" : "Não")</td>
+                    <td style="display:none">@resultadoCorridaViewModel[i].EquipeId</td>
+                    <td style="display:none">@resultadoCorridaViewModel[i].EtapaId</td>
+                    <td style="display:none">@resultadoCorridaViewModel[i].DescricaoPenalidade</td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
-@foreach (var resultado in resultadoCorridaViewModel)
-{
-    <partial name="_ResultadoModalForm" for="@resultado"/>
 
-}
+
+<div class="modal fade" id="modalCadastroResultado" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="EditarResultado">
+                <div class="modal-body">
+                    <input asp-for="PilotoId" type="hidden" class="form-control" id="editar-piloto-id" value="" />
+                    <input asp-for="EquipeId" type="hidden" class="form-control" id="editar-equipe-id" value="" />
+                    <input asp-for="EtapaId" type="hidden" class="form-control" id="editar-etapa-id" value="" />
+                    <div class="form-group">
+                        <label class="control-label">Nome do piloto</label>
+                        <input disabled class="form-control" id="exibir-nome" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label asp-for="Posicao" class="control-label"></label>
+                        <input asp-for="Posicao" class="form-control" id="editar-posicao" />
+                        <span asp-validation-for="Posicao" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Nome da Equipe</label>
+                        <input disabled class="form-control" id="exibir-equipe" />
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label asp-for="MelhorVolta" class="control-label"></label>
+                        <input type="checkbox" asp-for="MelhorVolta" id="editar-melhorVolta" class="form-check-input" />
+                        <span asp-validation-for="MelhorVolta" class="text-danger"></span>
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label asp-for="PosicaoLargada" class="control-label"></label>
+                        <input asp-for="PosicaoLargada" class="form-control" id="editar-posicaoLargada" />
+                        <span asp-validation-for="PosicaoLargada" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TempoMelhorVolta" class="control-label"></label>
+                        <input asp-for="TempoMelhorVolta" type="" class="form-control" id="editar-tempoMelhorVolta" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TempoTotal" class="control-label"></label>
+                        <input asp-for="TempoTotal" class="form-control" id="editar-tempoTotal" />
+                        <span asp-validation-for="TempoTotal" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TotalVoltas" class="control-label"></label>
+                        <input asp-for="TotalVoltas" class="form-control" id="editar-totalVoltas" />
+                        <span asp-validation-for="TotalVoltas" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PontosPenalidade" class="control-label"></label>
+                        <input asp-for="PontosPenalidade" class="form-control" id="editar-pontosPenalidade" />
+                        <span asp-validation-for="PontosPenalidade" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DescricaoPenalidade" class="control-label"></label>
+                        <input asp-for="DescricaoPenalidade" class="form-control" id="editar-descricaoPenalidade" />
+                        <span asp-validation-for="DescricaoPenalidade" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary" value="Salvar" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 @section scripts{
     <script>
-        function MontaModal(pilotoId, etapaId) {
-            preencheModalResultado("@Url.Action("PostModalResultado")", pilotoId, etapaId)
-        }
+        $(document).ready(function() {
+            $('#tabelaResultado').DataTable({
+                searching: false,
+                lengthChange: false,
+                "columnDefs": [
+                    { "orderable": true, "targets": [1, 2, 4, 6] },
+                    { "orderable": false, "targets": '_all' }
+                ]
+            });
+            $('#editar-tempoMelhorVolta').inputmask({
+                mask: 'mm:ss:999',
+                definitions: {
+                    '9': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    'h': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    'm': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    's': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    '.': {
+                        validator: '.'
+                    }
+                },
+                insertMode: false,
+                showMaskOnHover: false,
+                autoUnmask: true
+            }).on('complete', function() {
+                // Use o valor completo do campo de entrada aqui
+                var timeValue = $(this).val();
+                editarTempoMelhorVoltaInput.value = timeValue
+            });
+
+            $('#editar-tempoTotal').inputmask({
+                mask: 'hh:mm:ss:999',
+                definitions: {
+                    '9': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    'h': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    'm': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    's': {
+                        validator: '[0-9]',
+                        cardinality: 1
+                    },
+                    '.': {
+                        validator: '.'
+                    }
+                },
+                insertMode: false,
+                showMaskOnHover: false,
+                autoUnmask: true
+            }).on('complete', function() {
+                // Use o valor completo do campo de entrada aqui
+                var timeValue = $(this).val();
+                
+            });
+        });
+
+
+
+
+        const editarBtns = document.querySelectorAll('.editar-btn');
+        const modalEditar = document.querySelector('#modalCadastroResultado')
+        const pilotoIdInput = document.querySelector('#editar-piloto-id')
+        const equipeIdInput = document.querySelector('#editar-equipe-id')
+        const etapaIdInput = document.querySelector('#editar-etapa-id')
+        const editarNomeInput = document.querySelector('#exibir-nome')
+        const editarEquipeInput = document.querySelector('#exibir-equipe')
+        const editarPosicaoInput = document.querySelector('#editar-posicao')
+        const editarPosicaoLargadaInput = document.querySelector('#editar-posicaoLargada')
+        const editarTempoMelhorVoltaInput = document.querySelector('#editar-tempoMelhorVolta')
+        const editarMelhorVoltaInput = document.querySelector('#melhorVolta')
+        const editarTempoTotalInput = document.querySelector('#editar-tempoTotal')
+        const editarTotalVoltasInput = document.querySelector('#editar-totalVoltas')
+        const editarPontosPenalidadeInput = document.querySelector('#editar-pontosPenalidade')
+        const editarDescricaoPenalidadeInput = document.querySelector('#editar-descricaoPenalidade')
+
+        editarBtns.forEach((editarBtn) => {
+            editarBtn.addEventListener('click', () => {
+                const linha = editarBtn.closest('tr');
+                const pilotoId = linha.dataset.id;
+                const posicao = linha.cells[1].textContent;
+                const nome = linha.cells[2].textContent;
+                const equipe = linha.cells[3].textContent;
+                //const pontos = linha.cells[4].textContent;
+                const pontosPenalidade = linha.cells[5].textContent;
+                const largada = linha.cells[6].textContent;
+                const tempoTotal = linha.cells[7].textContent;
+                const totalVoltas = linha.cells[8].textContent;
+                const tempoMelhorVolta = linha.cells[9].textContent;
+                const melhorVolta = linha.cells[10].textContent;
+                const equipeId = linha.cells[11].textContent;
+                const etapaId = linha.cells[12].textContent;
+                const descricaoPenalidade = linha.cells[13].textContent;
+
+                pilotoIdInput.value = pilotoId;
+                equipeIdInput.value = equipeId;
+                etapaIdInput.value = etapaId;
+                editarNomeInput.value = nome;
+                editarEquipeInput.value = equipe;
+                editarPosicaoInput.value = posicao;
+                editarPontosPenalidadeInput.value = pontosPenalidade;
+                editarPosicaoLargadaInput.value = largada;
+                editarTempoTotalInput.value = tempoTotal;
+                editarTotalVoltasInput.value = totalVoltas;
+                editarTempoMelhorVoltaInput.value = tempoMelhorVolta;
+                editarDescricaoPenalidadeInput.value = descricaoPenalidade;
+
+                const modal = new bootstrap.Modal(document.querySelector('#modalCadastroResultado'));
+
+                modal.show();
+
+            })
+        })
     </script>
 }

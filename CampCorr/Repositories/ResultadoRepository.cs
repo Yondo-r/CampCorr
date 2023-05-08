@@ -28,6 +28,7 @@ namespace CampCorr.Repositories
                 PilotoId = pilotoId,
                 EtapaId = etapaId,
                 NomeEquipe = equipe.Nome,
+                EquipeId = equipe.EquipeId,
                 Resultado = resultadoCorrida
             };
             if (resultadoCorrida != null)
@@ -43,6 +44,7 @@ namespace CampCorr.Repositories
                 resultadoVm.MelhorVolta = resultadoCorrida.MelhorVolta;
                 resultadoVm.TempoMelhorVolta = resultadoCorrida.TempoMelhorVolta;
                 resultadoVm.TempoTotal = resultadoCorrida.TempoTotal;
+                resultadoVm.TotalVoltas = resultadoCorrida.TotalVoltas;
             };
 
             return resultadoVm;
