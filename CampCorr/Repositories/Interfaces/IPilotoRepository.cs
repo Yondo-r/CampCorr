@@ -11,5 +11,6 @@ namespace CampCorr.Repositories.Interfaces
         List<PilotoViewModel> PreencherListaDePilotosTemporada(int temporadaId);
         public List<ResultadoCorridaViewModel> PreencherListaDePilotosTemporadaComEquipe(int temporadaId);
         public List<PilotoViewModel> PreencherListaDePilotosTemporadaSemEquipe(int temporadaId);
+        public Piloto BuscarPilotoPorId(int pilotId);
     }
 }

@@ -116,5 +116,10 @@ namespace CampCorr.Repositories
         {
             return _context.Pilotos.Where(x => x.UsuarioId == idUsuario).FirstOrDefault().PilotoId;
         }
+
+        public Piloto BuscarPilotoPorId(int pilotoId)
+        {
+            return _context.Pilotos.Where(x => x.PilotoId.Equals(pilotoId)).FirstOrDefault();
+        }
     }
 }

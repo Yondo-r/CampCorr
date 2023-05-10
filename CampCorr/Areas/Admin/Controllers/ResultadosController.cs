@@ -7,6 +7,7 @@ using CampCorr.Models;
 using CampCorr.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Data;
 
 namespace CampCorr.Areas.Admin.Controllers
 {
@@ -93,7 +94,42 @@ namespace CampCorr.Areas.Admin.Controllers
             ViewBag.listaResultado = MontaListaResultadoVm(etapa);
             return RedirectToAction("ResultadoCorrida", new { etapaId = etapa.EtapaId });
         }
+        [HttpPost]
+        public async Task<IActionResult> FinalizarEtapa(int etapaId)
+        {
+            List<ResultadoCorrida> listaResultadoCorrida = await _context.ResultadosCorrida.Where(x => x.EtapaId.Equals(etapaId)).ToListAsync();
+            ValidarResultadoParaFinalizarEtapa(listaResultadoCorrida);
+            if (ModelState.IsValid)
+            {
+                foreach (ResultadoCorrida resultadoCorrida in listaResultadoCorrida)
+                {
+                    if (!resultadoCorrida.PontosPenalidade.HasValue)
+                    {
+                        resultadoCorrida.PontosPenalidade = 0;
+                    }
+                    _context.Update(resultadoCorrida);
+                    //await _context.SaveChangesAsync();
+                }
+            }
+            return RedirectToAction("ResultadoCorrida", new { etapaId = etapaId });
+        }
 
+        private void ValidarResultadoParaFinalizarEtapa(List<ResultadoCorrida> listaResultadoCorrida)
+        {
+            string mensagemErro = "";
+            int quantidadeErros = 0;
+            foreach (var resultadoCorrida in listaResultadoCorrida)
+            {
+                var nomePiloto = _pilotoRepository.BuscarPilotoPorId(resultadoCorrida.PilotoId).Nome;
+                if (!resultadoCorrida.Posicao.HasValue)
+                {
+                    mensagemErro = mensagemErro + "É necessário adicionar a posição do(a) piloto(a) " + nomePiloto + "<br />";
+                    ModelState.AddModelError("Posicao", "Não há posição para o piloto + nomePiloto");
+                }
+            }
+            TempData["erros"] = mensagemErro;
+            TempData["quantidadeErros"] = quantidadeErros;
+        }
 
         private ResultadoCorrida MontaResultado(int etapaId, int pilotoId)
         {

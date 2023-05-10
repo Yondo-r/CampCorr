@@ -52,6 +52,20 @@
         </tbody>
     </table>
 </div>
+<hr />
+<div class="form-group">
+    <form asp-action="FinalizarEtapa">
+        <button type="submit" class="btn btn-primary">Finalizar etapa</button>
+        <input asp-for="EtapaId" type="hidden" class="form-control" value="@resultadoCorridaViewModel[0].EtapaId" />
+        @*<span asp-validation-for="Posicao" class="text-danger"></span>*@
+        @*<hr />
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <li>@error.ErrorMessage</li>
+        }*@
+        <partial name="_erroValidarTemporada"/>
+    </form>
+</div>
 
 
 <div class="modal fade" id="modalCadastroResultado" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -202,7 +216,7 @@
             }).on('complete', function() {
                 // Use o valor completo do campo de entrada aqui
                 var timeValue = $(this).val();
-                
+
             });
         });
 
