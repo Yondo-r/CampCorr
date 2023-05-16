@@ -1,4 +1,4 @@
-﻿namespace CampCorr.Services
+﻿namespace CampCorr.Services.Interfaces
 {
     public interface ISeedUserRoleInitial
     {

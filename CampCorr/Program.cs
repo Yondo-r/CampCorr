@@ -2,6 +2,7 @@ using CampCorr.Context;
 using CampCorr.Repositories;
 using CampCorr.Repositories.Interfaces;
 using CampCorr.Services;
+using CampCorr.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 0;
 });
 
+
 builder.Services.AddTransient<ICampeonatoRepository, CampeonatoRepository>();
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<IPilotoRepository, PilotoRepository>();
@@ -36,6 +38,8 @@ builder.Services.AddTransient<ITemporadaRepository, TemporadaRepository>();
 builder.Services.AddTransient<IEtapaRepository, EtapaRepository>();
 builder.Services.AddTransient<IResultadoRepository, ResultadoRepository>();
 builder.Services.AddTransient<IEquipeRepository, EquipeRepository>();
+builder.Services.AddTransient<IRegulamentoRepository, RegulamentoRepository>();
+//builder.Services.AddTransient<ICalculo, Calculo>();
 builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 
 //builder.Services.AddAuthorization(options =>
@@ -45,6 +49,7 @@ builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 //        politica.RequireRole("Admin");
 //    });
 //});
+
 
 builder.Services.AddControllersWithViews();
 

@@ -9,6 +9,7 @@ namespace CampCorr.Repositories.Interfaces
         Circuito BuscarKartodromo(int kartodromoId);
         bool ValidarEtapa(int etapaId, DateTime data);
         Etapa BuscarEtapaPorId(int etapaId);
+        void ConcluirEtapa(int etapaId);
 
     }
 }

@@ -49,5 +49,11 @@ namespace CampCorr.Repositories
 
             return resultadoVm;
         }
+
+        public void SalvarResultado(ResultadoCorrida resultado)
+        {
+            _context.Update(resultado);
+            _context.SaveChanges();
+        }
     }
 }

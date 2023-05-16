@@ -1,4 +1,4 @@
-﻿@model CampCorr.Models.Etapa
+﻿@model CampCorr.Models.Temporada
 @{
     ViewData["Title"] = "Index";
     List<Etapa> listaEtapas = ViewBag.listaEtapas;
@@ -16,19 +16,29 @@
         <li class="lista-item">
             <button class="btn btn-secondary" data-bs-toggle="collapse" href="@collapse">@temporada.AnoTemporada</button>
             <div class="collapse" id="@collpaseId">
-                <div class="card card-body">
+                <div class="card card-body" style="background-color:#373434">
                     @foreach (var etapa in listaEtapas)
                     {
                         if (etapa.TemporadaId == temporada.TemporadaId)
                         {
-                            
+                            if (etapa.Concluido)
+                            {
                                 <div class="lista-item">
-                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure" >@etapa.NumeroEvento - @etapa.Kartodromo.Nome</a>
+                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Kartodromo.Nome (Concluída)</a>
                                 </div>
-                            
+                            }
+                            else
+                            {
+                                <div class="lista-item">
+                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Kartodromo.Nome</a>
+                                </div>
+                            }
+
                         }
                     }
                 </div>
+            <hr />
+            <a asp-action="AcompanharResultados" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Acompanhar Resultados</a>
             </div>
         </li>
     }

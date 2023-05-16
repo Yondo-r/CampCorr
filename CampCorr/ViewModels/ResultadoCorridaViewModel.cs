@@ -34,6 +34,8 @@ namespace CampCorr.ViewModels
         public int EtapaId { get; set; }
         public int ResultadoId { get; set; }
         public int EquipeId { get; set; }
+        [Display(Name = "Número de vitórias")]
+        public int NumeroVitorias { get; set; }
         public List<Equipe> ListaEquipe { get; set; }
         public ResultadoCorrida Resultado { get; set; }
     }

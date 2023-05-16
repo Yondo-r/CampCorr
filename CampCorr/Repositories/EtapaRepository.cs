@@ -71,5 +71,13 @@ namespace CampCorr.Repositories
                 return true;
             }
         }
+
+        public void ConcluirEtapa(int etapaId)
+        {
+            var etapa = _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefault();
+            etapa.Concluido = true;
+            _context.Update(etapa);
+            _context.SaveChanges();
+        }
     }
 }

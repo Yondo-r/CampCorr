@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using CampCorr.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace CampCorr.Services
 {

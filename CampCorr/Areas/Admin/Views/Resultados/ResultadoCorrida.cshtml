@@ -1,16 +1,15 @@
-﻿@*@model List<CampCorr.ViewModels.ResultadoCorridaViewModel>*@
-@*@model List<CampCorr.Models.ResultadoCorrida>*@
-@model CampCorr.Models.ResultadoCorrida
+﻿@model CampCorr.Models.ResultadoCorrida
 @{
     ViewData["NomeCampeonato"] = "NomeCampeonato";
     List<ResultadoCorridaViewModel> resultadoCorridaViewModel = ViewBag.listaResultado;
+    var etapaConcluida = ViewBag.etapaConcluida;
     ViewData["LocalEnvento"] = "nomeKartodromo";
 }
 
 <h1>Resultados</h1>
 <div class="table-responsive">
 
-    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultado">
+    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultadoEtapa">
         <thead>
             <tr>
                 <th scope="col"></th>
@@ -54,17 +53,22 @@
 </div>
 <hr />
 <div class="form-group">
-    <form asp-action="FinalizarEtapa">
-        <button type="submit" class="btn btn-primary">Finalizar etapa</button>
-        <input asp-for="EtapaId" type="hidden" class="form-control" value="@resultadoCorridaViewModel[0].EtapaId" />
-        @*<span asp-validation-for="Posicao" class="text-danger"></span>*@
-        @*<hr />
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <li>@error.ErrorMessage</li>
-        }*@
-        <partial name="_erroValidarTemporada"/>
-    </form>
+    @if (!etapaConcluida)
+    {
+        <form asp-action="FinalizarEtapa">
+            <button type="submit" class="btn btn-primary">Finalizar etapa</button>
+            <input asp-for="EtapaId" type="hidden" class="form-control" value="@resultadoCorridaViewModel[0].EtapaId" />
+            <partial name="_erroValidarTemporada" />
+        </form>
+    }
+    else
+    {
+            <h4>Etapa Finalizada</h4>
+    }
+</div>
+<hr />
+<div>
+    <a asp-action="Index">Voltar a lista de etapas</a>
 </div>
 
 
@@ -147,7 +151,7 @@
 @section scripts{
     <script>
         $(document).ready(function() {
-            $('#tabelaResultado').DataTable({
+            $('#tabelaResultadoEtapa').DataTable({
                 searching: false,
                 lengthChange: false,
                 "columnDefs": [
