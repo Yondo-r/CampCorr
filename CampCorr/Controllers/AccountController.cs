@@ -1,6 +1,6 @@
 ﻿using CampCorr.Context;
 using CampCorr.Models;
-using CampCorr.Repositories.Interfaces;
+using CampCorr.Services.Interfaces;
 using CampCorr.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,15 +11,15 @@ namespace CampCorr.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ICampeonatoService _campeonatoService;
         private readonly AppDbContext _context;
-        private readonly ICampeonatoRepository _campeonatoRepository;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, AppDbContext context, ICampeonatoRepository campeonatoRepository)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, AppDbContext context, ICampeonatoService campeonatoService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
-            _campeonatoRepository = campeonatoRepository;
+            _campeonatoService = campeonatoService;
         }
 
         public IActionResult Login(string returnUrl)
@@ -90,7 +90,7 @@ namespace CampCorr.Controllers
                             //await _signInManager.SignInAsync(user, isPersistent: false);
                             await _userManager.AddToRoleAsync(user, "Adm");
                             campeonato.UserId = user.Id;
-                            _campeonatoRepository.Salvar(campeonato);
+                            _campeonatoService.CriarCampeonato(campeonato);
                             //_context.Add(campeonato);
                             //await _context.SaveChangesAsync();
                         }

@@ -2,6 +2,7 @@
 using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
 using CampCorr.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
@@ -13,7 +14,23 @@ namespace CampCorr.Repositories
         {
             _context = context;
         }
+        public async void SalvarEquipe(Equipe equipe)
+        {
+            _context.Add(equipe);
+            await _context.SaveChangesAsync();
+        }
+        public async void SalvarEquipeTemporada(EquipeTemporada equipeTemporada)
+        {
+            _context.Add(equipeTemporada);
+            await _context.SaveChangesAsync();
+        }
+        public async void RemoverEquipeTemporada(EquipeTemporada equipeTemporada)
+        {
+            _context.Remove(equipeTemporada);
+            await _context.SaveChangesAsync();
+        }
 
+        //Esse método lista todas as equipes que estão cadastradas na temporada
         public List<Equipe> PreencherListaEquipesAdicionadas(int temporadaId)
         {
             List<Equipe> equipesAdicionadas = new List<Equipe>();
@@ -69,6 +86,16 @@ namespace CampCorr.Repositories
                 .FirstOrDefault();
             var equipe = query.te.e;
             return equipe;
+        }
+
+        public List<Equipe> BuscarEquipesCampeonato(int campeonatoId)
+        {
+            return _context.Equipes.Where(x => x.CampeonatoId == campeonatoId).ToList();
+        }
+
+        public async Task<EquipeTemporada> BuscarEquipeTemporada(int equipeId, int temporadaId)
+        {
+            return await _context.EquipeTemporadas.Where(x => x.EquipeId == equipeId && x.TemporadaId == temporadaId).FirstOrDefaultAsync();
         }
     }
 }

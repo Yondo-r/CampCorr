@@ -13,6 +13,7 @@
 <div class="form-outline form-white mb-4">
     <form asp-action="Edit">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="IdCampeonato" value="@Model.IdCampeonato" />
         <div class="form-group">
             <label asp-for="NomeCampeonato" class="control-label"></label>
             <input asp-for="NomeCampeonato" class="form-control" />

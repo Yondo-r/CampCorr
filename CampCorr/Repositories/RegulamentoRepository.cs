@@ -17,5 +17,9 @@ namespace CampCorr.Repositories
             var temporada = _context.Temporadas.Where(x => x.TemporadaId == etapa.TemporadaId).FirstOrDefault();
             return _context.Regulamentos.Where(x => x.RegulamentoId == temporada.RegulamentoId).FirstOrDefault();
         }
+        public Regulamento BuscarRegulamento(int regulamentoId)
+        {
+            return _context.Regulamentos.Where(x => x.RegulamentoId == regulamentoId).FirstOrDefault();
+        }
     }
 }

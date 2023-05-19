@@ -4,6 +4,7 @@ namespace CampCorr.Repositories.Interfaces
 {
     public interface IRegulamentoRepository
     {
-        public Regulamento BuscarRegulamentoPorEtapaId(int etapaId);
+        Regulamento BuscarRegulamentoPorEtapaId(int etapaId);
+        Regulamento BuscarRegulamento(int RegulamentoId);
     }
 }

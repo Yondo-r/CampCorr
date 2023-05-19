@@ -2,24 +2,82 @@
 using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
 using CampCorr.ViewModels;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
     public class PilotoRepository : IPilotoRepository
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        
         private readonly AppDbContext _context;
         //private readonly string nomeUsuario;
 
-        public PilotoRepository(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, AppDbContext context)
+        public PilotoRepository(AppDbContext context)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _context = context;
         }
+        public async void SalvarPilotoCampeonato(PilotoCampeonato pilotoCampeonato)
+        {
+            _context.Add(pilotoCampeonato);
+            await _context.SaveChangesAsync();
+        }
+        public async void RemoverPilotoCampeonato(int pilotoId, int campeonatoId)
+        {
+            var pilotoCampeonato = _context.PilotosCampeonatos.Where(x => x.PilotoId == pilotoId && x.CampeonatoId == campeonatoId).FirstOrDefault();
+            _context.Remove(pilotoCampeonato);
+            await _context.SaveChangesAsync();
+        }
+        public async void SalvarPilotoEquipe(PilotoEquipe pilotoEquipe)
+        {
+            _context.Add(pilotoEquipe);
+            await _context.SaveChangesAsync();
+        }
+        public async void RemoverPilotoEquipe(PilotoEquipe pilotoEquipe)
+        {
+            _context.Remove(pilotoEquipe);
+            await _context.SaveChangesAsync();
+        }
+        public async void SalvarPilotoTemporada(PilotoTemporada pilotoTemporada)
+        {
+            _context.Add(pilotoTemporada);
+            await _context.SaveChangesAsync();
+        }
+        public async void RemoverPilotoTemporada(PilotoTemporada pilotoTemporada)
+        {
+            _context.Remove(pilotoTemporada);
+            await _context.SaveChangesAsync();
+        }
 
+        public List<Piloto> ListarPilotos()
+        {
+            return _context.Pilotos.ToList();
+        }
+        public List<PilotoCampeonato> ListarPilotosCampeonato()
+        {
+            return _context.PilotosCampeonatos.ToList();
+        }
+        //Monta uma VM de piloto com campeonato
+        public List<PilotoViewModel> ListarPilotoVmCampeonato(int campeonatoId)
+        {
+            List<PilotoViewModel> pilotosCampeonato = new List<PilotoViewModel>();
+            var idsPilotosCampeonato = _context.Pilotos.Join(_context.PilotosCampeonatos,
+                p => p.PilotoId,
+                pc => pc.PilotoId, (p, pc) => new { p, pc })
+                .Join(_context.Campeonatos,
+                x => x.pc.CampeonatoId,
+                c => c.CampeonatoId, (p1, c) => new { p1, c })
+                .Where(y => y.c.CampeonatoId == campeonatoId).Select(x => x.p1.p.UsuarioId).ToList();
+            foreach (var userId in idsPilotosCampeonato)
+            {
+                PilotoViewModel pilotoVm = new PilotoViewModel() { };
+                var piloto = _context.Pilotos.Where(x => x.UsuarioId == userId).FirstOrDefault();
+                pilotoVm.NomePiloto = piloto.Nome;
+                pilotoVm.PilotoId = piloto.PilotoId;
+                pilotoVm.UserLogin = _context.Users.Where(x => x.Id == userId).Select(x => x.UserName).FirstOrDefault();
+                pilotosCampeonato.Add(pilotoVm);
+            }
+            return pilotosCampeonato;
+        }
         public List<Piloto> BuscarPilotosCadastradosCampeonato(int campeonatoId)
         {
             List<Piloto> pilotosCampeonato = new List<Piloto>(); 
@@ -95,23 +153,6 @@ namespace CampCorr.Repositories
             return listaPilotosAdicionados;
         }
 
-        public List<PilotoViewModel> PreencherListaDePilotosTemporadaSemEquipe(int temporadaId)
-        {
-            List<PilotoViewModel> listaPilotosTemporada = PreencherListaDePilotosTemporada(temporadaId);
-            var resultadoVm = PreencherListaDePilotosTemporada(temporadaId);
-            
-            var listaPilotoComEquipe = PreencherListaDePilotosTemporadaComEquipe(temporadaId);
-            
-            foreach (var piloto in listaPilotoComEquipe)
-            {
-                if (listaPilotosTemporada.Select(x => x.PilotoId).Contains(piloto.PilotoId))
-                {
-                    listaPilotosTemporada.Remove(listaPilotosTemporada.Where(x=>x.PilotoId == piloto.PilotoId).FirstOrDefault());
-                }
-            }
-            return listaPilotosTemporada;
-        }
-
         public int BuscarIdPilotoComUsuario(string idUsuario)
         {
             return _context.Pilotos.Where(x => x.UsuarioId == idUsuario).FirstOrDefault().PilotoId;
@@ -120,6 +161,37 @@ namespace CampCorr.Repositories
         public Piloto BuscarPilotoPorId(int pilotoId)
         {
             return _context.Pilotos.Where(x => x.PilotoId.Equals(pilotoId)).FirstOrDefault();
+        }
+        public async Task<PilotoEquipe> BuscarPilotoEquipeAsync(int pilotoId, int equipeId)
+        {
+            return await _context.PilotosEquipes.Where(x => x.PilotoId == pilotoId && x.EquipeId == equipeId).FirstOrDefaultAsync();
+        }
+        public async Task<PilotoTemporada> BuscarPilotoTemporadaAsync(int pilotoId, int temporadaId)
+        {
+            return await _context.PilotosTemporadas.Where(x => x.PilotoId == pilotoId && x.TemporadaId == temporadaId).FirstOrDefaultAsync();
+        }
+        public Piloto BuscarPiloto(int pilotoId)
+        {
+            return _context.Pilotos.Where(x => x.PilotoId == pilotoId).FirstOrDefault();
+        }
+
+        public List<Piloto> MontaListaPilotosTemporada(int temporadaId)
+        {
+            List<Piloto> listaPilotos = new List<Piloto>();
+            var idsPilotos = _context.ResultadosCorrida.Join(_context.Etapas,
+                rc => rc.EtapaId,
+                et => et.EtapaId, (rc, et) => new { rc, et })
+                .Join(_context.Temporadas,
+                Tp => Tp.et.TemporadaId,
+                T => T.TemporadaId, (Tp, T) => new { Tp, T })
+                .Where(x => x.T.TemporadaId == temporadaId).Select(x => x.Tp.rc.PilotoId).Distinct().ToList();
+
+            foreach (int id in idsPilotos)
+            {
+                listaPilotos.Add(_context.Pilotos.Where(x => x.PilotoId == id).FirstOrDefault());
+            }
+
+            return listaPilotos;
         }
     }
 }

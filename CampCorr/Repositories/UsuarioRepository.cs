@@ -1,6 +1,7 @@
 ﻿using CampCorr.Context;
 using Microsoft.AspNetCore.Identity;
 using CampCorr.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
@@ -23,6 +24,10 @@ namespace CampCorr.Repositories
         public string BuscarIdUsuarioPorNome(string nomeUsuario)
         {
             return _context.Users.Where(x => x.UserName == nomeUsuario).FirstOrDefault().Id;
+        }
+        public async Task<IdentityUser> BuscarUsuarioAsync(string usuarioId)
+        {
+            return await _context.Users.Where(x => x.Id == usuarioId).FirstOrDefaultAsync();
         }
     }
 }

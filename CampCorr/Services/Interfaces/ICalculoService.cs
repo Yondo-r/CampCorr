@@ -2,7 +2,7 @@
 
 namespace CampCorr.Services.Interfaces
 {
-    public interface ICalculo
+    public interface ICalculoService
     {
         bool CalcularResultadoEtapa(List<ResultadoCorrida> listaResultadoCorridas);
     }

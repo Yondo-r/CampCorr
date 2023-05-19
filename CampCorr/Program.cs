@@ -30,17 +30,28 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 0;
 });
 
-
+//Repositorios
 builder.Services.AddTransient<ICampeonatoRepository, CampeonatoRepository>();
-builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
-builder.Services.AddTransient<IPilotoRepository, PilotoRepository>();
-builder.Services.AddTransient<ITemporadaRepository, TemporadaRepository>();
-builder.Services.AddTransient<IEtapaRepository, EtapaRepository>();
-builder.Services.AddTransient<IResultadoRepository, ResultadoRepository>();
+builder.Services.AddTransient<ICircuitoRepository, CircuitoRepository>();
 builder.Services.AddTransient<IEquipeRepository, EquipeRepository>();
+builder.Services.AddTransient<IEtapaRepository, EtapaRepository>();
+builder.Services.AddTransient<IPilotoRepository, PilotoRepository>();
 builder.Services.AddTransient<IRegulamentoRepository, RegulamentoRepository>();
-//builder.Services.AddTransient<ICalculo, Calculo>();
+builder.Services.AddTransient<IResultadoRepository, ResultadoRepository>();
+builder.Services.AddTransient<ITemporadaRepository, TemporadaRepository>();
+builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+//Servicos
+builder.Services.AddScoped<ICalculoService, CalculoService>();
+builder.Services.AddScoped<ICampeonatoService, CampeonatoService>();
+builder.Services.AddScoped<ICircuitoService, CircuitoService>();
+builder.Services.AddScoped<IEquipeService, EquipeService>();
+builder.Services.AddScoped<IEtapaService, EtapaService>();
+builder.Services.AddScoped<IPilotoService, PilotoService>();
+builder.Services.AddScoped<IRegulamentoService, RegulamentoService>();
+builder.Services.AddScoped<IResultadoService, ResultadoService>();
 builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
+builder.Services.AddScoped<ITemporadaService, TemporadaService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 //builder.Services.AddAuthorization(options =>
 //{
@@ -96,22 +107,49 @@ app.UseEndpoints(endpoints =>
       name: "areas",
       pattern: "{area:exists}/{controller=Campeonatos}/{action=Index}/{id?}"
     );
+
+    endpoints.MapControllerRoute(
+        name: "admin",
+        pattern: "admin/{action=Index}/{id?}",
+        defaults: new { controller = "Campeonatos" }
+    );
+    endpoints.MapControllerRoute(
+        name: "campeonato",
+        pattern: "admin/Campeonatos/BuscarPilotos/{pageIndex?}",
+        defaults: new { controller = "Campeonatos", action = "BuscarPilotos" }
+    );
+
+    endpoints.MapControllerRoute(
+        name: "piloto",
+        pattern: "piloto/{action=Index}/{id?}",
+        defaults: new { controller = "Pilotos" }
+    );
+
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}"
+    );
 });
 
 
-app.MapControllerRoute(
-    name: "admin",
-    pattern: "admin/{action=Index}/{id?}",
-    defaults: new { controller = "Campeonatos" });
+//app.MapControllerRoute(
+//    name: "campeonato",
+//    pattern: "{controller=Campeonatos}/{action=BuscarPilotos}/{pageIndex?}",
+//     defaults: new { controller = "Campeonatos", action = "BuscarPilotos" });
 
-app.MapControllerRoute(
-    name: "piloto",
-    pattern: "piloto/{action=Index}/{id?}",
-    defaults: new { controller = "pilotos" });
+//app.MapControllerRoute(
+//    name: "admin",
+//    pattern: "admin/{action=Index}/{id?}",
+//    defaults: new { controller = "Campeonatos" });
+
+//app.MapControllerRoute(
+//    name: "piloto",
+//    pattern: "piloto/{action=Index}/{id?}",
+//    defaults: new { controller = "Pilotos" });
 
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

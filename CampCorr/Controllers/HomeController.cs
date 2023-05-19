@@ -5,28 +5,32 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CampCorr.Context;
+
 using CampCorr.Models;
 using Microsoft.AspNetCore.Authorization;
 using ReflectionIT.Mvc.Paging;
 using System.Diagnostics;
 using CampCorr.ViewModels;
 using MockQueryable.Moq;
+using CampCorr.Services.Interfaces;
 
 namespace CampCorr.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly AppDbContext _context;
-        public HomeController(AppDbContext context)
+        private readonly ICampeonatoService _campeonatoService;
+        private readonly IUsuarioService _usuarioService;
+
+        public HomeController(ICampeonatoService campeonatoService, IUsuarioService usuarioService)
         {
-            _context = context;
+            _campeonatoService = campeonatoService;
+            _usuarioService = usuarioService;
         }
 
         public async Task<IActionResult> Index(string filter, int pageindex = 1, string sort = "NomeCampeonato")
         {
-            var usuario = _context.Users.ToList();
-            var listaCampeonato = _context.Campeonatos.ToList();
+            var usuario = _usuarioService.ListarUsuarios();
+            var listaCampeonato = _campeonatoService.ListarCampeonatos();
             var resultadoVm = new List<CampeonatoViewModel>();
 
             foreach (var item in usuario)

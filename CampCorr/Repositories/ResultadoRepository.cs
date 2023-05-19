@@ -2,6 +2,7 @@
 using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
 using CampCorr.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
@@ -49,11 +50,38 @@ namespace CampCorr.Repositories
 
             return resultadoVm;
         }
+        public async Task<int> BuscarResultadoIdAsync(int etapaId, int pilotoId)
+        {
+            return await _context.ResultadosCorrida
+                .Where(x => x.EtapaId == etapaId && x.PilotoId == pilotoId)
+                .Select(x => x.ResultadoId)
+                .FirstOrDefaultAsync();
+        }
 
         public void SalvarResultado(ResultadoCorrida resultado)
         {
             _context.Update(resultado);
             _context.SaveChanges();
+        }
+        public async Task<List<ResultadoCorrida>> ListarResultadoEtapa(int etapaId)
+        {
+            return await _context.ResultadosCorrida.Where(x => x.EtapaId == etapaId).ToListAsync();
+        }
+        public List<ResultadoCorrida> MontaListaResultadoTemporada(int temporadaId)
+        {
+            List<ResultadoCorrida> listaResultadoTemporada = new List<ResultadoCorrida>();
+            var resultadoId = _context.ResultadosCorrida.Join(_context.Etapas,
+                rc => rc.EtapaId,
+                et => et.EtapaId, (rc, et) => new { rc, et })
+                .Join(_context.Temporadas,
+                Tp => Tp.et.TemporadaId,
+                T => T.TemporadaId, (Tp, T) => new { Tp, T })
+                .Where(x => x.T.TemporadaId == temporadaId).Select(x => x.Tp.rc.ResultadoId).ToList();
+            foreach (int id in resultadoId)
+            {
+                listaResultadoTemporada.Add(_context.ResultadosCorrida.Where(x => x.ResultadoId == id).FirstOrDefault());
+            }
+            return listaResultadoTemporada;
         }
     }
 }

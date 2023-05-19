@@ -15,8 +15,8 @@ namespace CampCorr.Models
         public string NumeroEvento { get; set; }
         public bool Concluido { get; set; }
         public int TemporadaId { get; set; }
-        public int KartodromoId { get; set; }
+        public int CircuitoId { get; set; }
         public virtual Temporada Temporada { get; set; }
-        public virtual Circuito Kartodromo { get; set; }
+        public virtual Circuito Circuito { get; set; }
     }   
 }

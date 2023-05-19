@@ -7,6 +7,7 @@ using CampCorr.Models;
 using CampCorr.ViewModels;
 using CampCorr.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using CampCorr.Services.Interfaces;
 
 namespace CampCorr.Areas.Campeonato.Controllers
 {
@@ -14,42 +15,38 @@ namespace CampCorr.Areas.Campeonato.Controllers
     [Authorize(Roles = "Adm")]
     public class EtapasController : Controller
     {
-        private readonly AppDbContext _context;
         private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ICampeonatoRepository _campeonatoRepository;
-        private readonly ITemporadaRepository _temporadaRepository;
-        private readonly IEtapaRepository _etapaRepository;
+        private readonly ICampeonatoService _campeonatoService;
+        private readonly ITemporadaService _temporadasService;
+        private readonly IEtapaService _etapaService;
+        private readonly ICircuitoService _circuitoService;
         private readonly string nomeUsuario;
+        private readonly int campeonatoId;
 
-        public EtapasController(AppDbContext context, SignInManager<IdentityUser> signInManager, ICampeonatoRepository campeonatoRepository, ITemporadaRepository temporadaRepository, IEtapaRepository etapaRepository)
+        public EtapasController(SignInManager<IdentityUser> signInManager, ITemporadaService temporadasService, ICircuitoService circuitoService)
         {
-            _context = context;
             _signInManager = signInManager;
             nomeUsuario = _signInManager.Context.User.Identity.Name;
-            _campeonatoRepository = campeonatoRepository;
-            _temporadaRepository = temporadaRepository;
-            _etapaRepository = etapaRepository;
+            campeonatoId = _campeonatoService.BuscarIdCampeonato(nomeUsuario);
+            _temporadasService = temporadasService;
+            _circuitoService = circuitoService;
         }
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Create(int anoTemporada)
+        public async Task<IActionResult> Create(int anoTemporada)
         {
-            var temporada = _context.Temporadas
-                .Where(x => x.CampeonatoId == _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuario(_signInManager.Context.User.Identity.Name)
-                && x.AnoTemporada == anoTemporada)
-                .FirstOrDefault();
-            var etapaAtual = _context.Etapas.Where(x => x.TemporadaId == temporada.TemporadaId).Count() + 1;
+            var temporada = await _temporadasService.BuscarTemporadaAsync(campeonatoId, anoTemporada);
+            var etapaAtual = _etapaService.BuscarNumeroEtapaAtual(temporada.TemporadaId);
             TempData["EtapaAtual"] = etapaAtual;
 
             CampeonatoViewModel campeonatoTemporadaVm = new CampeonatoViewModel()
             {
-                Circuitos = _context.Circuitos.ToList(),
+                Circuitos = _circuitoService.ListarCircuitos()
             };
 
-            ViewData["TemporadaId"] = new SelectList(_context.Temporadas, "TemporadaId", "Ano");
             TempData["NumeroEvento"] = etapaAtual.ToString() + " de " + temporada.QuantidadeEtapas;
             TempData["anoTemporada"] = anoTemporada;
             return View(campeonatoTemporadaVm);
@@ -57,25 +54,21 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int anoTemporada, [Bind("EtapaId,Traçado,Data,NumeroEvento,TemporadaId,KartodromoId")] Etapa etapa)
+        public async Task<IActionResult> Create(int anoTemporada, [Bind("EtapaId,Traçado,Data,NumeroEvento,TemporadaId,CircuitoId")] Etapa etapa)
         {
             if (anoTemporada != etapa.Data.Year)
             {
                 ModelState.AddModelError("Data", "O ano da corrida não pode ser diferente do ano da temporada");
             }
-            var temporada = _context.Temporadas
-                .Where(x => x.CampeonatoId == _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuario(_signInManager.Context.User.Identity.Name)
-                && x.AnoTemporada == anoTemporada)
-                .FirstOrDefault();
-            etapa.TemporadaId = _temporadaRepository.BuscarIdTemporadaPorNomeUsuario(_signInManager.Context.User.Identity.Name, etapa.Data.Year);
+            var temporada = await _temporadasService.BuscarTemporadaAsync(campeonatoId, anoTemporada);
+            etapa.TemporadaId = await _temporadasService.BuscarIdTemporadaAsync(nomeUsuario, etapa.Data.Year);
             //etapa.TemporadaId = temporadaId;
             var etapaAtual = Convert.ToInt32(etapa.NumeroEvento.Substring(0, 1));
             if (ModelState.IsValid)
             {
-                _context.Add(etapa);
-                await _context.SaveChangesAsync();
+                _etapaService.Salvar(etapa);
 
-                int quantidadeEtapas = _context.Temporadas.Where(x => x.TemporadaId == etapa.TemporadaId).FirstOrDefault().QuantidadeEtapas;
+                int quantidadeEtapas = _etapaService.QuantidadeEtapas(temporada.TemporadaId);
 
                 if (etapaAtual == quantidadeEtapas)
                 {
@@ -89,13 +82,13 @@ namespace CampCorr.Areas.Campeonato.Controllers
             {
                 var erro = ModelState.Values;
             }
-            ViewData["CampeonatoId"] = new SelectList(_context.Etapas, "EtapaId", "Ano", etapa.EtapaId);
+            //ViewData["CampeonatoId"] = new SelectList(_context.Etapas, "EtapaId", "Ano", etapa.EtapaId);
             TempData["NumeroEvento"] = etapaAtual.ToString() + " de " + temporada.QuantidadeEtapas;
             TempData["anoTemporada"] = anoTemporada;
 
             CampeonatoViewModel campeonatoTemporadaVm = new CampeonatoViewModel()
             {
-                Circuitos = _context.Circuitos.ToList(),
+                Circuitos = _circuitoService.ListarCircuitos(),
                 Data = etapa.Data,
                 NumeroEvento = etapa.NumeroEvento,
                 Traçado = etapa.Traçado
@@ -106,20 +99,19 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
         public async Task<IActionResult> Edit(string numeroEtapa, int ano)
         {
-            var etapaId = _etapaRepository.BuscarIdEtapaPorNomeUsuario(nomeUsuario, numeroEtapa, ano);
-            var etapa = await _context.Etapas.FindAsync(etapaId);
-            var quantidadeEtapas = _context.Temporadas.Where(x => x.TemporadaId == etapa.TemporadaId).FirstOrDefault().QuantidadeEtapas;
-            var circuito = _context.Circuitos.Where(x => x.CircuitoId == etapa.KartodromoId).FirstOrDefault();
-            TempData["circuitoId"] = etapa.KartodromoId;
+            var etapa = await _etapaService.BuscarEtapaAsync(nomeUsuario, numeroEtapa, ano);
+            var quantidadeEtapas = _etapaService.QuantidadeEtapas(etapa.TemporadaId);
+            var circuito = _circuitoService.ListarCircuitos().Where(x => x.CircuitoId == etapa.CircuitoId).FirstOrDefault();
+            TempData["circuitoId"] = etapa.CircuitoId;
             TempData["anoTemporada"] = ano;
             Etapa EtapaVm = new Etapa()
             {
                 Traçado = etapa.Traçado,
                 Data = etapa.Data,
-                Kartodromo = circuito,
-                EtapaId = etapaId
+                Circuito = circuito,
+                EtapaId = etapa.EtapaId
             };
-            ViewBag.Circuitos = _context.Circuitos.ToList();
+            ViewBag.Circuitos = _circuitoService.ListarCircuitos();
             TempData["NumeroEvento"] = numeroEtapa + " de " + quantidadeEtapas;
             return View(EtapaVm);
         }
@@ -128,26 +120,25 @@ namespace CampCorr.Areas.Campeonato.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int circuitoId, int anoTemporada, [Bind("EtapaId,Traçado,Data,NumeroEvento,TemporadaId")] Etapa etapa)
         {
-            etapa.TemporadaId = _temporadaRepository.BuscarIdTemporadaPorNomeUsuario(nomeUsuario, anoTemporada);
+            etapa.TemporadaId = await _temporadasService.BuscarIdTemporadaAsync(nomeUsuario, anoTemporada);
             //etapa.EtapaId = _etapaRepository.BuscarIdEtapaPorNomeUsuario(nomeUsuario, etapa.NumeroEvento.Substring(0, 1), anoTemporada);
             if (anoTemporada != etapa.Data.Year)
             {
                 ModelState.AddModelError("Data", "O ano da corrida não pode ser diferente do ano da temporada");
             }
             //verifica se foi selecionado um novo kartodromo ou se será usado o mesmo
-            if (etapa.KartodromoId == 0)
+            if (etapa.CircuitoId == 0)
             {
-                etapa.KartodromoId = circuitoId;
+                etapa.CircuitoId = circuitoId;
                 //_context.Update(etapa);
                 //await _context.SaveChangesAsync();
             }
-            
-                if (ModelState.IsValid)
-                {
-                    _context.Update(etapa);
-                    await _context.SaveChangesAsync();
-                }
-            
+
+            if (ModelState.IsValid)
+            {
+                _etapaService.Atualizar(etapa);
+            }
+
 
 
             TempData["NumeroEvento"] = etapa.NumeroEvento;
@@ -156,33 +147,33 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
         public async Task<IActionResult> Delete(string numeroEtapa, int ano)
         {
-            var etapaId = _etapaRepository.BuscarIdEtapaPorNomeUsuario(nomeUsuario, numeroEtapa.Substring(0, 1), ano);
-            var etapa = await _context.Etapas.FindAsync(etapaId);
+            var etapa = await _etapaService.BuscarEtapaAsync(nomeUsuario, numeroEtapa.Substring(0, 1), ano);
             if (etapa != null)
-                _context.Etapas.Remove(etapa);
-            await _context.SaveChangesAsync();
+            {
+                _etapaService.Remover(etapa);
+            }
             return RedirectToAction("Edit", "Temporadas", new { ano = ano });
         }
 
-        public IActionResult AdicionarPiloto()
-        {
-            return View();
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AdicionarPiloto(Models.Piloto piloto, int ano)
-        {
-            var temporadaId = _temporadaRepository.BuscarIdTemporadaPorNomeUsuario(nomeUsuario, ano);
-            var temporada = await _context.Temporadas.FindAsync(temporadaId);
-            if (piloto != null && temporada != null)
-            {
-                temporada.Pilotos.Add(piloto);
-                await _context.SaveChangesAsync();
-                return View();
+        //public IActionResult AdicionarPiloto()
+        //{
+        //    return View();
+        //}
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> AdicionarPiloto(Models.Piloto piloto, int ano)
+        //{
+        //    var temporada = await _temporadasService.BuscarTemporadaAsync(campeonatoId, ano);
+        //    if (piloto != null && temporada != null)
+        //    {
 
-            }
-            return View();
-        }
+        //        temporada.Pilotos.Add(piloto);
+        //        await _context.SaveChangesAsync();
+        //        return View();
+
+        //    }
+        //    return View();
+        //}
 
     }
 }

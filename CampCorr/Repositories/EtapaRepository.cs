@@ -2,6 +2,7 @@
 using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
@@ -21,13 +22,35 @@ namespace CampCorr.Repositories
             _campeonatoRepository = campeonatoRepository;
             nomeUsuario = _signInManager.Context.User.Identity.Name; 
         }
-
-        public int BuscarIdEtapaPorNomeUsuario(string nomeUsuario, string numeroEtapa, int anoTemporada)
+        public async void Salvar(Etapa etapa)
         {
-            return _context.Etapas.Where
-                    (x => x.TemporadaId == _temporadaRepository.BuscarIdTemporadaPorNomeUsuario(nomeUsuario, anoTemporada)
-                    && x.NumeroEvento.Substring(0, 1) == numeroEtapa.ToString()).FirstOrDefault().EtapaId;
+            _context.Add(etapa);
+            await _context.SaveChangesAsync();
         }
+        public async void Atualizar(Etapa etapa)
+        {
+            _context.Update(etapa);
+            await _context.SaveChangesAsync();
+        }
+        public async void Remover(Etapa etapa)
+        {
+            _context.Remove(etapa);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<Etapa> BuscarEtapaAsync(string nomeUsuario, string numeroEtapa, int ano)
+        {
+            var temporadaId = await _temporadaRepository.BuscarIdTemporadaPorNomeUsuarioAsync(nomeUsuario, ano);
+            return await _context.Etapas
+                .Where(x => x.TemporadaId == temporadaId
+                    && x.NumeroEvento.Substring(0, 1) == numeroEtapa.ToString())
+                .FirstOrDefaultAsync();
+        }
+        public async Task<Etapa> BuscarEtapaAsync(int etapaId)
+        {
+            return await _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefaultAsync();
+        }
+       
+
         //Função para buscar todas as etapas de todas as temporadas de um campeonato
         public List<Etapa> BuscarListaEtapasCampeonato(int campeonatoId)
         {
@@ -47,37 +70,48 @@ namespace CampCorr.Repositories
             return listaEtapa.OrderBy(x=>x.Data).ToList();
         }
 
-        public Circuito BuscarKartodromo(int kartodromoId)
+        public List<Etapa> ListarEtapasTemporada(int temporadaId)
         {
-            return _context.Circuitos.Where(x => x.CircuitoId == kartodromoId).FirstOrDefault();
+            return _context.Etapas.Where(x => x.TemporadaId == temporadaId).ToList();
         }
 
-        public Etapa BuscarEtapaPorId(int etapaId)
+        public Circuito BuscarCircuito(int CircuitoId)
         {
-            return _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefault();
-        }
-        public bool ValidarEtapa(int etapaId, DateTime data)
-        {
-            var etapa = _context.Etapas.Where(x => x.EtapaId == etapaId && x.Data == data).FirstOrDefault();
-            var temporada = _context.Temporadas.Where(x => x.TemporadaId == etapa.TemporadaId).FirstOrDefault();
-            var campeonatoId = _context.Campeonatos.Where(x => x.CampeonatoId == temporada.CampeonatoId).Select(x=>x.CampeonatoId).FirstOrDefault();
-            //verifica se conseguiu encontrar uma etapa com o id e a data e verifica se essa etapa pertence a esse campeonato
-            if (etapa == null || _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuario(nomeUsuario) != campeonatoId)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return _context.Circuitos.Where(x => x.CircuitoId == CircuitoId).FirstOrDefault();
         }
 
-        public void ConcluirEtapa(int etapaId)
+        
+        //public bool ValidarEtapa(int etapaId, DateTime data)
+        //{
+        //    var etapa = _context.Etapas.Where(x => x.EtapaId == etapaId && x.Data == data).FirstOrDefault();
+        //    var temporada = _context.Temporadas.Where(x => x.TemporadaId == etapa.TemporadaId).FirstOrDefault();
+        //    var campeonatoId = _context.Campeonatos.Where(x => x.CampeonatoId == temporada.CampeonatoId).Select(x=>x.CampeonatoId).FirstOrDefault();
+        //    //verifica se conseguiu encontrar uma etapa com o id e a data e verifica se essa etapa pertence a esse campeonato
+        //    if (etapa == null || _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuarioAsync(nomeUsuario) != campeonatoId)
+        //    {
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //        return true;
+        //    }
+        //}
+
+        public async void ConcluirEtapa(int etapaId)
         {
             var etapa = _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefault();
             etapa.Concluido = true;
             _context.Update(etapa);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+        }
+        //Método para buscar o número da etapa atual e não o Id
+        public int BuscarNumeroEtapaAtual(int temporadaId)
+        {
+            return _context.Etapas.Where(x => x.TemporadaId == temporadaId).Count() + 1;
+        }
+        public int QuantidadeEtapas(int temporadaId)
+        {
+            return _context.Temporadas.Where(x => x.TemporadaId == temporadaId).FirstOrDefault().QuantidadeEtapas;
         }
     }
 }

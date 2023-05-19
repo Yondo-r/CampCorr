@@ -26,7 +26,7 @@
 
 <div> Total de pilotos : @Model.TotalRecordCount </div>
 <div>
-    <vc:pager paging-list="@Model"></vc:pager>
+    <vc:pager paging-list="@Model" asp-page="@Model.Action"></vc:pager>
 </div>
 
 <div class="row">

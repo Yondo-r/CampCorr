@@ -24,13 +24,13 @@
                             if (etapa.Concluido)
                             {
                                 <div class="lista-item">
-                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Kartodromo.Nome (Concluída)</a>
+                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Circuito.Nome (Concluída)</a>
                                 </div>
                             }
                             else
                             {
                                 <div class="lista-item">
-                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Kartodromo.Nome</a>
+                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Circuito.Nome</a>
                                 </div>
                             }
 

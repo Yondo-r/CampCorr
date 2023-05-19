@@ -3,18 +3,19 @@ using CampCorr.Repositories;
 using CampCorr.Services.Interfaces;
 using CampCorr.Negocios;
 using CampCorr.Context;
+using CampCorr.Repositories.Interfaces;
 
 namespace CampCorr.Services
 {
-    public class Calculo : ICalculo
+    public class CalculoService : ICalculoService
     {
-        private readonly RegulamentoRepository _regulamentoRepository;
-        private readonly ResultadoRepository _resultadoRepository;
-        private readonly EtapaRepository _etapaRepository;
-        public Calculo(RegulamentoRepository regulamentoRepository, ResultadoRepository resultadoRepository, EtapaRepository etapaRepository)
+
+        private readonly IRegulamentoRepository _regulamentoRepository;
+        private readonly IEtapaRepository _etapaRepository;
+
+        public CalculoService(IRegulamentoRepository regulamentoRepository, IEtapaRepository etapaRepository)
         {
             _regulamentoRepository = regulamentoRepository;
-            _resultadoRepository = resultadoRepository;
             _etapaRepository = etapaRepository;
         }
 
@@ -29,7 +30,6 @@ namespace CampCorr.Services
                     sucesso = CalcularResultadoEtapaAkgp(listaResultadoCorridas);
                     if (sucesso)
                         _etapaRepository.ConcluirEtapa(etapaId);
-
                     break;
                 default:
                     sucesso = CalcularResultadoEtapaF1(listaResultadoCorridas);

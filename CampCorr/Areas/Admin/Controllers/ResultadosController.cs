@@ -17,43 +17,47 @@ namespace CampCorr.Areas.Admin.Controllers
     [Authorize(Roles = "Adm")]
     public class ResultadosController : Controller
     {
-        private readonly AppDbContext _context;
         private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ICampeonatoRepository _campeonatoRepository;
-        private readonly ITemporadaRepository _temporadaRepository;
-        private readonly IEtapaRepository _etapaRepository;
-        private readonly IPilotoRepository _pilotoRepository;
-        private readonly IResultadoRepository _resultadoRepository;
+        private readonly ICampeonatoService _campeonatoService;
+        private readonly ITemporadaService _temporadaService;
+        private readonly IEtapaService _etapaService;
+        private readonly ICircuitoService _circuitoService;
+        private readonly IRegulamentoService _regulamentoService;
+        private readonly IPilotoService _pilotoService;
+        private readonly IUsuarioService _usuarioService;
+        private readonly IEquipeService _equipeService;
+        private readonly IResultadoService _resultadoService;
+        private readonly ICalculoService _calculoService;
         private readonly string nomeUsuario;
-        private readonly IEquipeRepository _equipeRepository;
-        private readonly IRegulamentoRepository _regulamentoRepository;
+        private readonly int campeonatoId;
 
-        public ResultadosController(AppDbContext context, SignInManager<IdentityUser> signInManager, ICampeonatoRepository campeonatoRepository, ITemporadaRepository temporadaRepository, IEtapaRepository etapaRepository, IPilotoRepository pilotoRepository, IResultadoRepository resultadoRepository, IEquipeRepository equipeRepository, IRegulamentoRepository regulamentoRepository)
+        public ResultadosController(SignInManager<IdentityUser> signInManager, ICampeonatoService campeonatoService, ITemporadaService temporadaService, IEtapaService etapaService, ICircuitoService circuitoService, IRegulamentoService regulamentoService, IPilotoService pilotoService, IUsuarioService usuarioService, IEquipeService equipeService, ICalculoService calculoService)
         {
-            _context = context;
             _signInManager = signInManager;
-            _campeonatoRepository = campeonatoRepository;
-            _temporadaRepository = temporadaRepository;
-            _etapaRepository = etapaRepository;
             nomeUsuario = _signInManager.Context.User.Identity.Name;
-            _pilotoRepository = pilotoRepository;
-            _resultadoRepository = resultadoRepository;
-            _equipeRepository = equipeRepository;
-            _regulamentoRepository = regulamentoRepository;
+            _campeonatoService = campeonatoService;
+            _temporadaService = temporadaService;
+            _etapaService = etapaService;
+            _circuitoService = circuitoService;
+            _regulamentoService = regulamentoService;
+            _pilotoService = pilotoService;
+            _usuarioService = usuarioService;
+            campeonatoId = _campeonatoService.BuscarIdCampeonato(nomeUsuario);
+            _equipeService = equipeService;
+            _calculoService = calculoService;
         }
 
         //Exibir lista com as temporadas. Ao clicar na lista abrirá outra lista com as etapas. A lista de etapa irá mostrar se a etapa está ou não concluída.
         //Caso seja clicado em uma etapa concluída, será exibido o resultado da etapa.
         //Caso a etapa não esteja concluída, será exibido um botão para o usuário poder inserir o restultado da etapa
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var idCampeonato = _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuario(nomeUsuario);
-            var listaTemporada = _context.Temporadas.Where(x => x.CampeonatoId == idCampeonato).ToList();
-            var listaEtapa = _etapaRepository.BuscarListaEtapasCampeonato(idCampeonato);
+            var listaTemporada = _temporadaService.ListarTemporadasDoCampeonato(campeonatoId);
+            var listaEtapa = _etapaService.ListarEtapasCampeonato(campeonatoId);
 
             foreach (var etapa in listaEtapa)
             {
-                etapa.Kartodromo = _etapaRepository.BuscarKartodromo(etapa.KartodromoId);
+                etapa.Circuito = await _circuitoService.BuscarCircuitoAsync(etapa.CircuitoId);
             }
 
             ViewBag.listaEtapas = listaEtapa;
@@ -61,15 +65,14 @@ namespace CampCorr.Areas.Admin.Controllers
             return View();
         }
 
-        public IActionResult ResultadoCorrida(int etapaId)
+        public async Task<IActionResult> ResultadoCorrida(int etapaId)
         {
             //encriptar id para dificultar a alteração de resultados
 
-            var etapa = _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefault();
+            var etapa = await _etapaService.BuscarEtapaAsync(etapaId);
 
-            var listaEquipes = _equipeRepository.PreencherListaEquipesAdicionadas(etapa.TemporadaId);
+            var listaEquipes = _equipeService.ListaEquipesTemporada(etapa.TemporadaId);
             ViewBag.ListaEquipe = listaEquipes;
-            etapa = _etapaRepository.BuscarEtapaPorId(etapa.EtapaId);
             ViewBag.etapaConcluida = etapa.Concluido;
             var listaResultadoVm = MontaListaResultadoVm(etapa);
             ViewBag.listaResultado = listaResultadoVm;
@@ -85,16 +88,13 @@ namespace CampCorr.Areas.Admin.Controllers
             resultadoCorrida.TempoTotal = string.IsNullOrEmpty(tempoTotal) ? TimeSpan.Parse("0") : TimeSpan.ParseExact(tempoTotal, "hh':'mm':'ss':'fff", CultureInfo.InvariantCulture);
             if (resultadoCorrida.ResultadoId == 0)
             {
-                resultadoCorrida.ResultadoId = await _context.ResultadosCorrida
-                    .Where(x => x.EtapaId == resultadoCorrida.EtapaId && x.PilotoId == resultadoCorrida.PilotoId)
-                    .Select(x => x.ResultadoId).FirstOrDefaultAsync();
+                resultadoCorrida.ResultadoId = await _resultadoService.BuscarResultadoIdAsync(resultadoCorrida.EtapaId, resultadoCorrida.PilotoId);
             }
             //Pega os dados, faz o cálculo e salva no banco.
-            var etapa = _etapaRepository.BuscarEtapaPorId(resultadoCorrida.EtapaId);
+            var etapa = await _etapaService.BuscarEtapaAsync(resultadoCorrida.EtapaId);
             if (ModelState.IsValid)
             {
-                _context.Update(resultadoCorrida);
-                await _context.SaveChangesAsync();
+                _resultadoService.Salvar(resultadoCorrida);
             }
             ViewBag.listaResultado = MontaListaResultadoVm(etapa);
             return RedirectToAction("ResultadoCorrida", new { etapaId = etapa.EtapaId });
@@ -102,7 +102,7 @@ namespace CampCorr.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> FinalizarEtapa(int etapaId)
         {
-            List<ResultadoCorrida> listaResultadoCorrida = await _context.ResultadosCorrida.Where(x => x.EtapaId.Equals(etapaId)).ToListAsync();
+            List<ResultadoCorrida> listaResultadoCorrida = await _resultadoService.ListarResultadoEtapa(etapaId);
             ValidarPosicaoParaFinalizarEtapa(listaResultadoCorrida);
             if (ModelState.IsValid)
             {
@@ -113,7 +113,7 @@ namespace CampCorr.Areas.Admin.Controllers
                         resultadoCorrida.PontosPenalidade = 0;
                     }
                 }
-                if (!CalcularResultadoEtapa(listaResultadoCorrida))
+                if (!_calculoService.CalcularResultadoEtapa(listaResultadoCorrida))
                 {
                     if (!listaResultadoCorrida.Any(x => x.MelhorVolta == true))
                     {
@@ -134,7 +134,7 @@ namespace CampCorr.Areas.Admin.Controllers
 
         public async Task<IActionResult> AcompanharResultados(int temporadaId)
         {
-            var temporada = await _context.Temporadas.Where(x => x.TemporadaId == temporadaId).FirstOrDefaultAsync();
+            var temporada = await _temporadaService.BuscarTemporadaAsync(temporadaId);
             List<ResultadoCorridaViewModel> resultadoTemporadaParcial = MontaResultadoTemporadaParcial(temporadaId);
             return View(resultadoTemporadaParcial);
         }
@@ -142,8 +142,8 @@ namespace CampCorr.Areas.Admin.Controllers
         private List<ResultadoCorridaViewModel> MontaResultadoTemporadaParcial(int temporadaId)
         {
             List<ResultadoCorridaViewModel> tabelaResultado = new List<ResultadoCorridaViewModel>();
-            List<ResultadoCorrida> resultadoTemporadaParcial = MontaListaResultadoTemporada(temporadaId);
-            List<CampCorr.Models.Piloto> listaPilotos = MontaListaPilotosTemporada(temporadaId);
+            List<ResultadoCorrida> resultadoTemporadaParcial = _resultadoService.MontaListaResultadoTemporada(temporadaId);
+            List<CampCorr.Models.Piloto> listaPilotos = _pilotoService.MontaListaPilotosTemporada(temporadaId);
 
             foreach (var piloto in listaPilotos)
             {
@@ -165,7 +165,7 @@ namespace CampCorr.Areas.Admin.Controllers
                 ResultadoCorridaViewModel resultadoPiloto = new ResultadoCorridaViewModel()
                 {
                     NomePiloto = piloto.Nome,
-                    NomeEquipe = _equipeRepository.BuscarEquipe(listaResultadosDoPiloto[0].EtapaId, piloto.PilotoId).Nome,
+                    NomeEquipe = _equipeService.BuscarEquipeDoPiloto(listaResultadosDoPiloto[0].EtapaId, piloto.PilotoId).Nome,
                     Pontos = pontos,
                     NumeroVitorias = vitorias,
                 };
@@ -175,41 +175,9 @@ namespace CampCorr.Areas.Admin.Controllers
             return tabelaResultado;
         }
 
-        private List<ResultadoCorrida> MontaListaResultadoTemporada(int temporadaId)
-        {
-            List<ResultadoCorrida> listaResultadoTemporada = new List<ResultadoCorrida>();
-            var resultadoId = _context.ResultadosCorrida.Join(_context.Etapas,
-                rc => rc.EtapaId,
-                et => et.EtapaId, (rc, et) => new { rc, et })
-                .Join(_context.Temporadas,
-                Tp => Tp.et.TemporadaId,
-                T => T.TemporadaId, (Tp, T) => new { Tp, T })
-                .Where(x => x.T.TemporadaId == temporadaId).Select(x => x.Tp.rc.ResultadoId).ToList();
-            foreach (int id in resultadoId)
-            {
-                listaResultadoTemporada.Add(_context.ResultadosCorrida.Where(x => x.ResultadoId == id).FirstOrDefault());
-            }
-            return listaResultadoTemporada;
-        }
+        
 
-        private List<Models.Piloto> MontaListaPilotosTemporada(int temporadaId)
-        {
-            List<CampCorr.Models.Piloto> listaPilotos = new List<Models.Piloto>();
-            var idsPilotos = _context.ResultadosCorrida.Join(_context.Etapas,
-                rc => rc.EtapaId,
-                et => et.EtapaId, (rc, et) => new {rc, et})
-                .Join(_context.Temporadas,
-                Tp => Tp.et.TemporadaId,
-                T => T.TemporadaId, (Tp, T) => new {Tp, T})
-                .Where(x => x.T.TemporadaId == temporadaId).Select(x => x.Tp.rc.PilotoId).Distinct().ToList();
-
-            foreach (int id in idsPilotos)
-            {
-                listaPilotos.Add(_context.Pilotos.Where(x => x.PilotoId == id).FirstOrDefault());
-            }
-
-            return listaPilotos;
-        }
+        
 
         private void ValidarPosicaoParaFinalizarEtapa(List<ResultadoCorrida> listaResultadoCorrida)
         {
@@ -224,7 +192,7 @@ namespace CampCorr.Areas.Admin.Controllers
                 List<int> posicao = new List<int>();
                 foreach (var resultadoCorrida in listaResultadoCorrida)
                 {
-                    var nomePiloto = _pilotoRepository.BuscarPilotoPorId(resultadoCorrida.PilotoId).Nome;
+                    var nomePiloto = _pilotoService.BuscarPiloto(resultadoCorrida.PilotoId).Nome;
                     //Verifica se não tem dois pilotos cadastrados na mesma posição
                     if (!posicao.Contains((int)resultadoCorrida.Posicao))
                     {
@@ -256,7 +224,7 @@ namespace CampCorr.Areas.Admin.Controllers
             {
                 EtapaId = etapaId,
                 PilotoId = pilotoId,
-                EquipeId = _equipeRepository.BuscarEquipe(etapaId, pilotoId).EquipeId
+                EquipeId = _equipeService.BuscarEquipeDoPiloto(etapaId, pilotoId).EquipeId
             };
             return resultado;
 
@@ -287,65 +255,16 @@ namespace CampCorr.Areas.Admin.Controllers
         private List<ResultadoCorridaViewModel> MontaListaResultadoVm(Etapa etapa)
         {
             List<ResultadoCorridaViewModel> listaResultadoVm = new List<ResultadoCorridaViewModel>();
-            List<PilotoViewModel> listaPilotos = _pilotoRepository.PreencherListaDePilotosTemporada(etapa.TemporadaId);
+            List<PilotoViewModel> listaPilotos = _pilotoService.ListarPilotosVmTemporada(etapa.TemporadaId);
 
             foreach (var piloto in listaPilotos)
             {
-                var resultado = _resultadoRepository.BuscarPilotoResultadoEtapa(etapa.EtapaId, piloto.PilotoId);
+                var resultado =  _resultadoService.BuscarPilotoResultadoEtapa(etapa.EtapaId, piloto.PilotoId);
                 listaResultadoVm.Add(resultado);
             }
 
             return listaResultadoVm;
         }
-
-        //ToDo Alterar estrutura para corrigir o serviço calculo
-        #region ServiçoCalculo
-        public bool CalcularResultadoEtapa(List<ResultadoCorrida> listaResultadoCorridas)
-        {
-            bool sucesso = false;
-            int etapaId = listaResultadoCorridas[0].EtapaId;
-            var regulamento = _regulamentoRepository.BuscarRegulamentoPorEtapaId(etapaId);
-            switch (regulamento.Nome)
-            {
-                case "Akgp":
-                    sucesso = CalcularResultadoEtapaAkgp(listaResultadoCorridas);
-                    if (sucesso)
-                        _etapaRepository.ConcluirEtapa(etapaId);
-
-                    break;
-                default:
-                    sucesso = CalcularResultadoEtapaF1(listaResultadoCorridas);
-                    break;
-            }
-            return sucesso;
-        }
-        private bool CalcularResultadoEtapaAkgp(List<ResultadoCorrida> resultadoCorridas)
-        {
-            //Verifica se existe apenas uma melhor volta cadastrada
-            if (resultadoCorridas.Any(x => x.MelhorVolta == true) && (resultadoCorridas.Count(x => x.MelhorVolta == true) == 1))
-            {
-                var regrasAkgp = new RegrasAkgp();
-                var listaPontuação = regrasAkgp.MontarListaPontos();
-                resultadoCorridas = resultadoCorridas.OrderBy(x => x.Posicao).ToList();
-                for (int i = 0; i < resultadoCorridas.Count(); i++)
-                {
-                    resultadoCorridas[i].Pontos = (listaPontuação[i] - resultadoCorridas[i].PontosPenalidade);
-                    if (resultadoCorridas[i].MelhorVolta == true)
-                    {
-                        resultadoCorridas[i].Pontos += 2;
-                    }
-                    //_resultadoRepository.SalvarResultado(resultadoCorridas[i]);
-                }
-                return true;
-            }
-            return false;
-        }
-        private bool CalcularResultadoEtapaF1(List<ResultadoCorrida> resultadoCorridas)
-        {
-            return false;
-        }
-
-        #endregion
         #endregion
     }
 }

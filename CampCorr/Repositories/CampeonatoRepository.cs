@@ -2,6 +2,7 @@
 using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
 using CampCorr.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
@@ -16,26 +17,40 @@ namespace CampCorr.Repositories
 
         public IEnumerable<Campeonato> Campeonatos => _context.Campeonatos;
         
-        public void Salvar(Campeonato campeonato)
+        public async void Salvar(Campeonato campeonato)
         {
             _context.Add(campeonato);
-            _context.SaveChangesAsync();
+           await _context.SaveChangesAsync();
         }
-
-        public void RemovePilotoCampeonato(int idPiloto, int idCampeonato)
+        public async void Atualizar(Campeonato campeonato)
         {
-            var pilotoCampeonato = _context.PilotosCampeonatos.Where(x => x.PilotoId == idPiloto && x.CampeonatoId == idCampeonato).FirstOrDefault();
-            _context.Remove(pilotoCampeonato);
-            _context.SaveChanges();
+            _context.Update(campeonato);
+            await _context.SaveChangesAsync();
         }
+        public List<Campeonato> ListarCampeonatos()
+        {
+            return _context.Campeonatos.ToList();
+        }
+        
         public string BuscarIdCampeonatoPorIdUsuario(string userId)
         {
             return _context.Campeonatos.FirstOrDefault(x => x.UserId == userId).CampeonatoId.ToString();
         }
+        public async Task<int> BuscarIdCampeonatoPorNomeUsuarioAsync(string nomeUsuario)
+        {
+            var userId = _context.Users.Where(x => x.UserName.Contains(nomeUsuario)).FirstOrDefault().Id;
+            var campeonato = await _context.Campeonatos.FirstOrDefaultAsync(x => x.UserId == userId);
+            return campeonato.CampeonatoId;
+        }
         public int BuscarIdCampeonatoPorNomeUsuario(string nomeUsuario)
         {
             var userId = _context.Users.Where(x => x.UserName.Contains(nomeUsuario)).FirstOrDefault().Id;
-            return _context.Campeonatos.FirstOrDefault(x => x.UserId == userId).CampeonatoId;
+            var campeonato = _context.Campeonatos.FirstOrDefault(x => x.UserId == userId);
+            return campeonato.CampeonatoId;
+        }
+        public async Task<Campeonato> BuscarCampeonatoPorId(int campeonatoId)
+        {
+            return await _context.Campeonatos.FindAsync(campeonatoId);
         }
     }
 }

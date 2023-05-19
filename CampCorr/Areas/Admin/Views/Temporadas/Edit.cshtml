@@ -54,7 +54,7 @@
                     <a class="btn" style="color:azure" asp-action="Edit" asp-controller="Etapas" asp-route-numeroEtapa="@item.NumeroEvento.Substring(0,1)" asp-route-ano="@item.Data.Year">
                         @item.NumeroEvento.ToString()
                         @item.Data.ToShortDateString()
-                        @item.Kartodromo.Nome.ToString()
+                        @item.Circuito.Nome.ToString()
                     </a>
                 </div>
             }

@@ -29,7 +29,7 @@ namespace CampCorr.ViewModels
         public DateTime Data { get; set; }
         [Display(Name = "Etapa")]
         public string NumeroEvento { get; set; }
-        [Display(Name = "Nome do Kartodromo")]
+        [Display(Name = "Nome do Circuito")]
         public string NomeCircuito { get; set; }
         public List<Circuito> Circuitos { get; set; }
         public List<Temporada> Temporadas { get; set; }

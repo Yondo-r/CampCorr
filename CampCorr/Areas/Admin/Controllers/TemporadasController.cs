@@ -7,6 +7,7 @@ using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using CampCorr.ViewModels;
+using CampCorr.Services.Interfaces;
 
 namespace CampCorr.Areas.Campeonato.Controllers
 {
@@ -14,21 +15,29 @@ namespace CampCorr.Areas.Campeonato.Controllers
     [Authorize(Roles = "Adm")]
     public class TemporadasController : Controller
     {
-        private readonly AppDbContext _context;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ICampeonatoService _campeonatoService;
+        private readonly ITemporadaService _temporadaService;
+        private readonly IEtapaService _etapaService;
+        private readonly ICircuitoService _circuitoService;
+        private readonly IRegulamentoService _regulamentoService;
+        private readonly IPilotoService _pilotoService;
+        private readonly IUsuarioService _usuarioService;
         private readonly string nomeUsuario;
-        private readonly IPilotoRepository _pilotoRepository;
-        private readonly ICampeonatoRepository _campeonatoRepository;
-        private readonly ITemporadaRepository _temporadaRepository;
+        private readonly int campeonatoId;
 
-        public TemporadasController(AppDbContext context, SignInManager<IdentityUser> signInManager, IPilotoRepository pilotoRepository, ICampeonatoRepository campeonatoRepository, ITemporadaRepository temporadaRepository)
+        public TemporadasController(SignInManager<IdentityUser> signInManager, ICampeonatoService campeonatoService, ITemporadaService temporadasService, IEtapaService etapaService, ICircuitoService circuitoService, IRegulamentoService regulamentoService, IPilotoService pilotoService, IUsuarioService usuarioService)
         {
-            _context = context;
             _signInManager = signInManager;
-            _pilotoRepository = pilotoRepository;
             nomeUsuario = signInManager.Context.User.Identity.Name;
-            _campeonatoRepository = campeonatoRepository;
-            _temporadaRepository = temporadaRepository;
+            _campeonatoService = campeonatoService;
+            campeonatoId = _campeonatoService.BuscarIdCampeonato(nomeUsuario);
+            _temporadaService = temporadasService;
+            _etapaService = etapaService;
+            _circuitoService = circuitoService;
+            _regulamentoService = regulamentoService;
+            _pilotoService = pilotoService;
+            _usuarioService = usuarioService;
         }
         public IActionResult Index()
         {
@@ -38,51 +47,45 @@ namespace CampCorr.Areas.Campeonato.Controllers
         public IActionResult Create(int? campeonatoId)
         {
             TempData["campeonatoId"] = campeonatoId;
-            ViewData["CampeonatoId"] = new SelectList(_context.Campeonatos, "CampeonatoId", "Nome");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TemporadaId,QuantidadeEtapas,RegulamentoId")] Temporada temporada)
+        public IActionResult Create([Bind("TemporadaId,QuantidadeEtapas,RegulamentoId")] Temporada temporada)
         {
-            temporada.CampeonatoId = _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuario(_signInManager.Context.User.Identity.Name);
-             //campeonato = _context.Campeonatos.Where(x => x.CampeonatoId == CampeonatoId).FirstOrDefault();
+            temporada.CampeonatoId = campeonatoId;
             if (ModelState.IsValid)
             {
-                _context.Add(temporada);
-
-                await _context.SaveChangesAsync();
+                _temporadaService.Salvar(temporada);
                 return RedirectToAction("Edit", new { temporadaId = temporada.TemporadaId });
             }
-            ViewData["CampeonatoId"] = new SelectList(_context.Campeonatos, "CampeonatoId", "Nome", temporada.TemporadaId);
             return View(temporada);
         }
 
         public async Task<IActionResult> Edit(int ano)
         {
-            if (_context.Campeonatos == null)
-            {
-                return NotFound();
-            }
-            var temporadaId = _temporadaRepository.BuscarIdTemporadaPorNomeUsuario(_signInManager.Context.User.Identity.Name, ano);
-            var temporada = await _context.Temporadas.FindAsync(temporadaId);
+            //if (_context.Campeonatos == null)
+            //{
+            //    return NotFound();
+            //}
+            var temporada = await _temporadaService.BuscarTemporadaAsync(campeonatoId, ano);
             if (temporada == null)
             {
                 return NotFound();
             }
 
-            temporada.Etapas = _context.Etapas.Where(x => x.TemporadaId == temporadaId).ToList();
+            temporada.Etapas = _etapaService.ListarEtapasTemporada(temporada.TemporadaId);
             foreach (var item in temporada.Etapas)
             {
-                item.Kartodromo = _context.Circuitos.Where(x => x.CircuitoId == item.KartodromoId).FirstOrDefault();
+                item.Circuito = await _circuitoService.BuscarCircuitoAsync(item.CircuitoId);
             }
             CampeonatoViewModel campeonatoTemporadaVm = new CampeonatoViewModel()
             {
                 Etapas = temporada.Etapas.OrderBy(x => x.Data).ToList(),
                 AnoTemporada = temporada.AnoTemporada,
                 QuantidadeEtapas = temporada.QuantidadeEtapas,
-                Regulamento = _context.Regulamentos.Where(x => x.RegulamentoId == temporada.RegulamentoId).FirstOrDefault().Descricao,
+                Regulamento = _regulamentoService.BuscarRegulamento(temporada.RegulamentoId).Nome
             };
 
             return View(campeonatoTemporadaVm);
@@ -103,12 +106,11 @@ namespace CampCorr.Areas.Campeonato.Controllers
             {
                 try
                 {
-                    _context.Update(temporada);
-                    await _context.SaveChangesAsync();
+                    _temporadaService.Atualizar(temporada);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TemporadaExists(temporada.CampeonatoId))
+                    if (! _temporadaService.TemporadaExists(temporada.CampeonatoId))
                     {
                         return NotFound();
                     }
@@ -126,25 +128,23 @@ namespace CampCorr.Areas.Campeonato.Controllers
         {
             TempData["anoTemporada"] = anoTemporada;
 
-            var temporada = await _context.Temporadas
-                .Where(x => x.CampeonatoId == _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuario(nomeUsuario)
-                && x.AnoTemporada == anoTemporada)
-                .FirstOrDefaultAsync();
-            var pilotosCampeonato = _pilotoRepository.BuscarPilotosCadastradosCampeonato(temporada.CampeonatoId);
+            var temporada = await _temporadaService.BuscarTemporadaAsync(campeonatoId, anoTemporada);
+            var pilotosCampeonato = _pilotoService.ListarPilotosDoCampeonato(temporada.CampeonatoId);
 
             List<PilotoViewModel> listaPilotoCampeonatoVM = new List<PilotoViewModel>() { };
             foreach (var piloto in pilotosCampeonato)
             {
+                var nomeUsuario = await _usuarioService.BuscarUsuarioAsync(piloto.UsuarioId);
                 PilotoViewModel pilotoVM = new PilotoViewModel()
                 {
                     NomePiloto = piloto.Nome,
                     PilotoId = piloto.PilotoId,
-                    UserLogin = _context.Users.Where(x => x.Id == piloto.UsuarioId).Select(x => x.UserName).FirstOrDefault(),
+                    UserLogin = nomeUsuario.UserName,
                 };
                 listaPilotoCampeonatoVM.Add(pilotoVM);
             }
-            var listaPilotosTemporadaAdicionado = _pilotoRepository.PreencherListaDePilotosTemporada(temporada.TemporadaId);
-            var listaPilotosTemporadaNaoAdicionado = _pilotoRepository.PreencherListaDePilotosNaoAdicionadosTemporada(listaPilotoCampeonatoVM, listaPilotosTemporadaAdicionado);
+            var listaPilotosTemporadaAdicionado = _pilotoService.ListarPilotosVmTemporada(temporada.TemporadaId);
+            var listaPilotosTemporadaNaoAdicionado = _pilotoService.ListarPilotosVmSemTemporada(listaPilotoCampeonatoVM, listaPilotosTemporadaAdicionado);
 
             ViewBag.ListaPilotosCampeonato = listaPilotoCampeonatoVM;
             ViewBag.ListaPilotosTemporadaAdicionado = listaPilotosTemporadaAdicionado;
@@ -153,9 +153,10 @@ namespace CampCorr.Areas.Campeonato.Controllers
             return View(listaPilotoCampeonatoVM);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<JsonResult> PostAddPilotos(List<string> idPiloto, int anoTemporada, [Bind("Id,PilotoId,TemporadaId")] PilotoTemporada pilotoTemporada)
         {
-            var temporadaId = _temporadaRepository.BuscarIdTemporadaPorNomeUsuario(nomeUsuario, anoTemporada);
+            var temporadaId = await _temporadaService.BuscarIdTemporadaAsync(nomeUsuario, anoTemporada);
             if (ModelState.IsValid)
             {
                 foreach (var id in idPiloto)
@@ -163,31 +164,27 @@ namespace CampCorr.Areas.Campeonato.Controllers
                     pilotoTemporada.Id = 0;
                     pilotoTemporada.TemporadaId = temporadaId;
                     pilotoTemporada.PilotoId = Convert.ToInt32(id);
-                    _context.Add(pilotoTemporada);
-                    await _context.SaveChangesAsync();
+                    _pilotoService.SalvarPilotoTemporada(pilotoTemporada);
                 }
             }
             return new JsonResult(Ok());
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<JsonResult> PostRemoverPilotos(List<string> idPiloto, int anoTemporada)
         {
-            var temporadaId = _temporadaRepository.BuscarIdTemporadaPorNomeUsuario(nomeUsuario, anoTemporada);
+            var temporadaId = await _temporadaService.BuscarIdTemporadaAsync(nomeUsuario, anoTemporada);
             foreach (var id in idPiloto)
             {
-                var pilotorRemover = await _context.PilotosTemporadas.Where(x => x.PilotoId == Convert.ToInt32(id) && x.TemporadaId == temporadaId).FirstOrDefaultAsync();
+                var pilotorRemover = await _pilotoService.BuscarPilotoTemporadaAsync(Convert.ToInt32(id), temporadaId);
                 if (pilotorRemover != null)
                 {
-                    _context.Remove(pilotorRemover);
-                    await _context.SaveChangesAsync();
+                    _pilotoService.RemoverPilotoTemporada(pilotorRemover);
                 }
             }
             return new JsonResult(Ok());
         }
 
-        private bool TemporadaExists(int id)
-        {
-            return _context.Temporadas.Any(e => e.TemporadaId == id);
-        }
+        
     }
 }

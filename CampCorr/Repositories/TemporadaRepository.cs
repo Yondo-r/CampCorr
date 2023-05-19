@@ -1,5 +1,7 @@
 ﻿using CampCorr.Context;
+using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
@@ -13,10 +15,37 @@ namespace CampCorr.Repositories
             _context = context;
             _campeonatoRepository = campeonatoRepository;
         }
-
-        public int BuscarIdTemporadaPorNomeUsuario(string nomeUsuario, int anoTemporada)
+        public async void Salvar(Temporada temporada)
         {
-            return _context.Temporadas.Where(x => x.CampeonatoId == _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuario(nomeUsuario) && x.AnoTemporada == anoTemporada).FirstOrDefault().TemporadaId;
+            _context.Add(temporada);
+            await _context.SaveChangesAsync();
+        }
+        public async void Atualizar(Temporada temporada)
+        {
+            _context.Update(temporada);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<int> BuscarIdTemporadaPorNomeUsuarioAsync(string nomeUsuario, int anoTemporada)
+        {
+            var campeonatoId = await _campeonatoRepository.BuscarIdCampeonatoPorNomeUsuarioAsync(nomeUsuario);
+            var temporada = await _context.Temporadas.Where(x => x.CampeonatoId == campeonatoId && x.AnoTemporada == anoTemporada).FirstOrDefaultAsync();
+            return temporada.TemporadaId;
+        }
+        public List<Temporada> ListarTemporadasDoCampeonato(int campeonatoId)
+        {
+            return  _context.Temporadas.Where(x => x.CampeonatoId == campeonatoId).ToList();
+        }
+        public async Task<Temporada> BuscarTemporadaAsync(int campeonatoId, int anoTemporada)
+        {
+            return await _context.Temporadas.Where(x => x.CampeonatoId == campeonatoId && x.AnoTemporada == anoTemporada).FirstOrDefaultAsync();
+        }
+        public async Task<Temporada> BuscarTemporadaAsync(int tempodaraId)
+        {
+            return await _context.Temporadas.Where(x => x.TemporadaId == tempodaraId).FirstOrDefaultAsync();
+        }
+        public bool TemporadaExists(int id)
+        {
+            return _context.Temporadas.Any(e => e.TemporadaId == id);
         }
     }
 }

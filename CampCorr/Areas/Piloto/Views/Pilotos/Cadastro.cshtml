@@ -56,28 +56,7 @@
             <input type="submit" value="Salvar" class="btn btn-primary" />
         </div>
         <hr />
-        @*@if (Model.Etapas.Count() > 0)
-        {
-            <div>
-                Editar Etapa
-            </div>
-            @foreach (var item in Model.Etapas)
-            {
-                <div class="alert alert-etapa">
-                    <a class="btn" style="color:azure" asp-action="Edit" asp-controller="Etapas" asp-route-numeroEtapa="@item.NumeroEvento.Substring(0,1)" asp-route-ano="@item.Data.Year">
-                        @item.NumeroEvento.ToString()
-                        @item.Data.ToShortDateString()
-                        @item.Kartodromo.Nome.ToString()
-                    </a>
-                </div>
-            }
-        }
-        @if (Model.QuantidadeEtapas > Model.Etapas.Count())
-        {
-            <div>
-                 <a asp-action="Create" asp-area="Admin" asp-controller="Etapas" asp-route-quantidadeEtapas = "@Model.QuantidadeEtapas"> Adicionar Etapa </a>
-            </div>
-        }*@
+        
 
 
     </form>

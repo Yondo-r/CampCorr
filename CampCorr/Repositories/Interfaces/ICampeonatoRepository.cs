@@ -7,9 +7,11 @@ namespace CampCorr.Repositories.Interfaces
     {
         IEnumerable<Campeonato> Campeonatos { get; }
         void Salvar(Campeonato campeonato);
-        void RemovePilotoCampeonato(int idPiloto, int idCampeonato);
+        void Atualizar(Campeonato campeonato);
+        List<Campeonato> ListarCampeonatos();
+        Task<int> BuscarIdCampeonatoPorNomeUsuarioAsync(string nomeUsuario);
         int BuscarIdCampeonatoPorNomeUsuario(string nomeUsuario);
-
+        Task<Campeonato> BuscarCampeonatoPorId(int campeonatoId);
 
     }
 }
