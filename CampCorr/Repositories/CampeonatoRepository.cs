@@ -17,15 +17,15 @@ namespace CampCorr.Repositories
 
         public IEnumerable<Campeonato> Campeonatos => _context.Campeonatos;
         
-        public async void Salvar(Campeonato campeonato)
+        public void Salvar(Campeonato campeonato)
         {
             _context.Add(campeonato);
-           await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        public async void Atualizar(Campeonato campeonato)
+        public void Atualizar(Campeonato campeonato)
         {
             _context.Update(campeonato);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
         public List<Campeonato> ListarCampeonatos()
         {

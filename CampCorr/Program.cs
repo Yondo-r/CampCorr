@@ -108,48 +108,22 @@ app.UseEndpoints(endpoints =>
       pattern: "{area:exists}/{controller=Campeonatos}/{action=Index}/{id?}"
     );
 
-    endpoints.MapControllerRoute(
-        name: "admin",
-        pattern: "admin/{action=Index}/{id?}",
-        defaults: new { controller = "Campeonatos" }
-    );
-    endpoints.MapControllerRoute(
-        name: "campeonato",
-        pattern: "admin/Campeonatos/BuscarPilotos/{pageIndex?}",
-        defaults: new { controller = "Campeonatos", action = "BuscarPilotos" }
-    );
-
-    endpoints.MapControllerRoute(
-        name: "piloto",
-        pattern: "piloto/{action=Index}/{id?}",
-        defaults: new { controller = "Pilotos" }
-    );
-
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}"
-    );
 });
 
 
-//app.MapControllerRoute(
-//    name: "campeonato",
-//    pattern: "{controller=Campeonatos}/{action=BuscarPilotos}/{pageIndex?}",
-//     defaults: new { controller = "Campeonatos", action = "BuscarPilotos" });
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "admin/{action=Index}/{id?}",
+    defaults: new { controller = "Campeonatos" });
 
-//app.MapControllerRoute(
-//    name: "admin",
-//    pattern: "admin/{action=Index}/{id?}",
-//    defaults: new { controller = "Campeonatos" });
-
-//app.MapControllerRoute(
-//    name: "piloto",
-//    pattern: "piloto/{action=Index}/{id?}",
-//    defaults: new { controller = "Pilotos" });
+app.MapControllerRoute(
+    name: "piloto",
+    pattern: "piloto/{action=Index}/{id?}",
+    defaults: new { controller = "Pilotos" });
 
 
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

@@ -15,15 +15,15 @@ namespace CampCorr.Repositories
             _context = context;
             _campeonatoRepository = campeonatoRepository;
         }
-        public async void Salvar(Temporada temporada)
+        public void Salvar(Temporada temporada)
         {
             _context.Add(temporada);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        public async void Atualizar(Temporada temporada)
+        public void Atualizar(Temporada temporada)
         {
             _context.Update(temporada);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
         public async Task<int> BuscarIdTemporadaPorNomeUsuarioAsync(string nomeUsuario, int anoTemporada)
         {

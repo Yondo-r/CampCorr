@@ -9,6 +9,7 @@ namespace CampCorr.Repositories.Interfaces
         void Remover(Etapa etapa);
         Task<Etapa> BuscarEtapaAsync(string nomeUsuario, string numeroEtapa, int anoTemporada);
         Task<Etapa> BuscarEtapaAsync(int etapaId);
+        Etapa BuscarEtapa(int etapaId);
         List<Etapa> BuscarListaEtapasCampeonato(int campeonatoId);
         List<Etapa> ListarEtapasTemporada(int temporadaId);
         Circuito BuscarCircuito(int CircuitoId);

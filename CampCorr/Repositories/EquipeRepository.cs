@@ -14,20 +14,20 @@ namespace CampCorr.Repositories
         {
             _context = context;
         }
-        public async void SalvarEquipe(Equipe equipe)
+        public void SalvarEquipe(Equipe equipe)
         {
             _context.Add(equipe);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        public async void SalvarEquipeTemporada(EquipeTemporada equipeTemporada)
+        public void SalvarEquipeTemporada(EquipeTemporada equipeTemporada)
         {
             _context.Add(equipeTemporada);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        public async void RemoverEquipeTemporada(EquipeTemporada equipeTemporada)
+        public void RemoverEquipeTemporada(EquipeTemporada equipeTemporada)
         {
             _context.Remove(equipeTemporada);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
         //Esse método lista todas as equipes que estão cadastradas na temporada

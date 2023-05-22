@@ -40,6 +40,10 @@ namespace CampCorr.Services
         {
             return await _etapaRepository.BuscarEtapaAsync(etapaId);
         }
+        public Etapa BuscarEtapa(int etapaId)
+        {
+            return _etapaRepository.BuscarEtapa(etapaId);
+        }
         public List<Etapa> ListarEtapasTemporada(int temporadaId)
         {
             return _etapaRepository.ListarEtapasTemporada(temporadaId);

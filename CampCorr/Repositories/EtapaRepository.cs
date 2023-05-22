@@ -22,20 +22,20 @@ namespace CampCorr.Repositories
             _campeonatoRepository = campeonatoRepository;
             nomeUsuario = _signInManager.Context.User.Identity.Name; 
         }
-        public async void Salvar(Etapa etapa)
+        public void Salvar(Etapa etapa)
         {
             _context.Add(etapa);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        public async void Atualizar(Etapa etapa)
+        public void Atualizar(Etapa etapa)
         {
             _context.Update(etapa);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
-        public async void Remover(Etapa etapa)
+        public void Remover(Etapa etapa)
         {
             _context.Remove(etapa);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
         public async Task<Etapa> BuscarEtapaAsync(string nomeUsuario, string numeroEtapa, int ano)
         {
@@ -48,6 +48,10 @@ namespace CampCorr.Repositories
         public async Task<Etapa> BuscarEtapaAsync(int etapaId)
         {
             return await _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefaultAsync();
+        }
+        public Etapa BuscarEtapa(int etapaId)
+        {
+            return _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefault();
         }
        
 
@@ -97,12 +101,12 @@ namespace CampCorr.Repositories
         //    }
         //}
 
-        public async void ConcluirEtapa(int etapaId)
+        public void ConcluirEtapa(int etapaId)
         {
             var etapa = _context.Etapas.Where(x => x.EtapaId == etapaId).FirstOrDefault();
             etapa.Concluido = true;
             _context.Update(etapa);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
         //Método para buscar o número da etapa atual e não o Id
         public int BuscarNumeroEtapaAtual(int temporadaId)

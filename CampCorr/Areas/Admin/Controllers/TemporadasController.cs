@@ -58,7 +58,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
             if (ModelState.IsValid)
             {
                 _temporadaService.Salvar(temporada);
-                return RedirectToAction("Edit", new { temporadaId = temporada.TemporadaId });
+                return RedirectToAction("Edit", new { ano = temporada.AnoTemporada });
             }
             return View(temporada);
         }
@@ -153,7 +153,6 @@ namespace CampCorr.Areas.Campeonato.Controllers
             return View(listaPilotoCampeonatoVM);
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<JsonResult> PostAddPilotos(List<string> idPiloto, int anoTemporada, [Bind("Id,PilotoId,TemporadaId")] PilotoTemporada pilotoTemporada)
         {
             var temporadaId = await _temporadaService.BuscarIdTemporadaAsync(nomeUsuario, anoTemporada);
@@ -170,7 +169,6 @@ namespace CampCorr.Areas.Campeonato.Controllers
             return new JsonResult(Ok());
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<JsonResult> PostRemoverPilotos(List<string> idPiloto, int anoTemporada)
         {
             var temporadaId = await _temporadaService.BuscarIdTemporadaAsync(nomeUsuario, anoTemporada);

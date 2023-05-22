@@ -23,13 +23,15 @@ namespace CampCorr.Areas.Campeonato.Controllers
         private readonly string nomeUsuario;
         private readonly int campeonatoId;
 
-        public EtapasController(SignInManager<IdentityUser> signInManager, ITemporadaService temporadasService, ICircuitoService circuitoService)
+        public EtapasController(SignInManager<IdentityUser> signInManager, ITemporadaService temporadasService, ICircuitoService circuitoService, ICampeonatoService campeonatoService, IEtapaService etapaService)
         {
             _signInManager = signInManager;
             nomeUsuario = _signInManager.Context.User.Identity.Name;
+            _campeonatoService = campeonatoService;
             campeonatoId = _campeonatoService.BuscarIdCampeonato(nomeUsuario);
             _temporadasService = temporadasService;
             _circuitoService = circuitoService;
+            _etapaService = etapaService;
         }
         public IActionResult Index()
         {
