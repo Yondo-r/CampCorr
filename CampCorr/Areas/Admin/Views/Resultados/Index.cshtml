@@ -3,6 +3,7 @@
     ViewData["Title"] = "Index";
     List<Etapa> listaEtapas = ViewBag.listaEtapas;
     List<Temporada> listaTemporadas = ViewBag.listaTemporadas;
+    int quantidadeEtapasConcluida = 0;
 }
 
 @*Verificar se temporada e etapa estão concluídos e exibir em cor diferente*@
@@ -23,6 +24,7 @@
                         {
                             if (etapa.Concluido)
                             {
+                                quantidadeEtapasConcluida++;
                                 <div class="lista-item">
                                     <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Circuito.Nome (Concluída)</a>
                                 </div>
@@ -37,8 +39,15 @@
                         }
                     }
                 </div>
-            <hr />
-            <a asp-action="AcompanharResultados" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Acompanhar Resultados</a>
+                <hr />
+                @if (listaEtapas.Count() == quantidadeEtapasConcluida)
+                {
+                    <a asp-action="ConcluirTemporada" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Concluir Temporada</a>
+                }
+                else
+                {
+                    <a asp-action="AcompanharResultados" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Acompanhar Resultados</a>
+                }
             </div>
         </li>
     }
