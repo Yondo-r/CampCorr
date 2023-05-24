@@ -32,6 +32,10 @@ namespace CampCorr.Services
         {
             return await _temporadaRepository.BuscarTemporadaAsync(temporadaId);
         }
+        public Temporada BuscarTemporada(int temporadaId)
+        {
+            return _temporadaRepository.BuscarTemporada(temporadaId);
+        }
         public async Task<int> BuscarIdTemporadaAsync(string nomeUsuario, int anoTemporada)
         {
             return await _temporadaRepository.BuscarIdTemporadaPorNomeUsuarioAsync(nomeUsuario, anoTemporada);

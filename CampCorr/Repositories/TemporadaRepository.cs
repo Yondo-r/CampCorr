@@ -43,6 +43,10 @@ namespace CampCorr.Repositories
         {
             return await _context.Temporadas.Where(x => x.TemporadaId == tempodaraId).FirstOrDefaultAsync();
         }
+        public Temporada BuscarTemporada(int temporadaId)
+        {
+            return _context.Temporadas.FirstOrDefault(x => x.TemporadaId == temporadaId);
+        }
         public bool TemporadaExists(int id)
         {
             return _context.Temporadas.Any(e => e.TemporadaId == id);

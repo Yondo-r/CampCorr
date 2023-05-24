@@ -10,6 +10,7 @@ namespace CampCorr.Repositories.Interfaces
         List<Temporada> ListarTemporadasDoCampeonato(int campeonatoId);
         Task<Temporada> BuscarTemporadaAsync(int campeonatoId, int anoTemporada);
         Task<Temporada> BuscarTemporadaAsync(int tempodaraId);
+        Temporada BuscarTemporada(int temporadaId);
         bool TemporadaExists(int id);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CampCorr.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace CampCorr.ViewModels
 {
@@ -35,6 +36,7 @@ namespace CampCorr.ViewModels
         public string Email { get; set; }
         [Display(Name = "Foto")]
         public string Foto { get; set; }
+        public List<ResultadoCorrida> ResultadosPiloto { get; set; }
 
         public PilotoViewModel() { }
         public PilotoViewModel(int pilotoId, string userName, string nome)

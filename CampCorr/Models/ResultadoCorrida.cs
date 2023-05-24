@@ -27,5 +27,6 @@ namespace CampCorr.Models
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:HH:mm:ss.fff}")]
         [Display(Name = "Tempo total da prova")]
         public TimeSpan? TempoTotal { get; set; }
+        public bool Advertencia { get; set; }
     }
 }

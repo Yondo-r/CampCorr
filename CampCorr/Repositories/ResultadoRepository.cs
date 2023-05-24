@@ -58,7 +58,7 @@ namespace CampCorr.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public void SalvarResultado(ResultadoCorrida resultado)
+        public void SalvarResultadoCorrida(ResultadoCorrida resultado)
         {
             _context.Update(resultado);
             _context.SaveChanges();
@@ -66,6 +66,17 @@ namespace CampCorr.Repositories
         public async Task<List<ResultadoCorrida>> ListarResultadoEtapa(int etapaId)
         {
             return await _context.ResultadosCorrida.Where(x => x.EtapaId == etapaId).ToListAsync();
+        }
+        public List<ResultadoCorrida> ListarResultadoEtapa(int temporadaId, int pilotoId)
+        {
+            List<ResultadoCorrida> resultadoList = new List<ResultadoCorrida>();
+            var etapasId = _context.Etapas.Where(x => x.TemporadaId == temporadaId).Select(x => x.EtapaId).ToList();
+            foreach (var id in etapasId)
+            {
+                var resultadoDaEtapa = _context.ResultadosCorrida.Where(x => x.EtapaId == id && x.PilotoId == pilotoId).FirstOrDefault();
+                resultadoList.Add(resultadoDaEtapa);
+            }
+            return resultadoList;
         }
         public List<ResultadoCorrida> MontaListaResultadoTemporada(int temporadaId)
         {
@@ -82,6 +93,18 @@ namespace CampCorr.Repositories
                 listaResultadoTemporada.Add(_context.ResultadosCorrida.Where(x => x.ResultadoId == id).FirstOrDefault());
             }
             return listaResultadoTemporada;
+        }
+        public List<ResultadoTemporada> MontaListaResultadoFinalTemporada(int temporadaId)
+        {
+            return _context.ResultadosTemporada.Where(x => x.TemporadaId == temporadaId).ToList();
+        }
+        public void SalvarResultadosTemporada(List<ResultadoTemporada> resultadosTemporada)
+        {
+            foreach (var resultado in resultadosTemporada)
+            {
+                _context.Add(resultado);
+                _context.SaveChanges();
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ namespace CampCorr.Repositories.Interfaces
     {
         List<Equipe> PreencherListaEquipesAdicionadas(int temporadaId);
         List<ResultadoCorridaViewModel> PreencherListaPilotosEquipe(int temporadaId);
+        Equipe BuscarEquipe(int equipeId);
         Equipe BuscarEquipe(int idEtapa, int idPiloto);
         Task<EquipeTemporada> BuscarEquipeTemporada(int equipeId, int temporadaId);
         void SalvarEquipe(Equipe equipe);

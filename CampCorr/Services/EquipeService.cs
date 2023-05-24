@@ -17,6 +17,10 @@ namespace CampCorr.Services
         {
             _equipeRepository.SalvarEquipe(equipe);
         }
+        public Equipe BuscarEquipe(int equipeId)
+        {
+            return _equipeRepository.BuscarEquipe(equipeId);
+        }
         public List<Equipe> BuscarEquipesCampeonato(int campeonatoId)
         {
             return _equipeRepository.BuscarEquipesCampeonato(campeonatoId);

@@ -133,11 +133,51 @@ namespace CampCorr.Areas.Admin.Controllers
             return RedirectToAction("ResultadoCorrida", new { etapaId = etapaId });
         }
 
-        public async Task<IActionResult> AcompanharResultados(int temporadaId)
+        public IActionResult AcompanharResultados(int temporadaId)
         {
-            var temporada = await _temporadaService.BuscarTemporadaAsync(temporadaId);
             List<ResultadoCorridaViewModel> resultadoTemporadaParcial = MontaResultadoTemporadaParcial(temporadaId);
             return View(resultadoTemporadaParcial);
+        }
+
+        public IActionResult ConcluirTemporada(int temporadaId)
+        {
+            var listaResultadoTemporada = _calculoService.CalcularResultadoTemporada(temporadaId);
+            var temporada = _temporadaService.BuscarTemporada(temporadaId);
+            if (temporada.Concluida == false)
+            {
+                _resultadoService.ConcluirTemporada(listaResultadoTemporada, temporada);
+                return RedirectToAction("ResultadoTemporada", new { temporadaId = temporadaId });
+            }
+            return RedirectToAction("Index");
+
+
+        }
+        public IActionResult ResultadoTemporada(int temporadaId)
+        {
+            List<ResultadoCorridaViewModel> resultadoTemporada = MontaResultadoTemporada(temporadaId);
+            return View(resultadoTemporada);
+        }
+
+        private List<ResultadoCorridaViewModel> MontaResultadoTemporada(int temporadaId)
+        {
+            List<ResultadoCorridaViewModel> tabelaResultado = new List<ResultadoCorridaViewModel>();
+            List<ResultadoTemporada> resultadosTemporada = _resultadoService.MontaListaResultadoFinalTemporada(temporadaId);
+
+            foreach (ResultadoTemporada resultadoTemporadaPiloto in resultadosTemporada)
+            {
+                ResultadoCorridaViewModel resultadoPiloto = new ResultadoCorridaViewModel()
+                {
+                    NomePiloto = _pilotoService.BuscarPiloto(resultadoTemporadaPiloto.PilotoId).Nome,
+                    NomeEquipe = _equipeService.BuscarEquipe(resultadoTemporadaPiloto.EquipeId).Nome,
+                    Pontos = resultadoTemporadaPiloto.Pontos,
+                    Posicao = resultadoTemporadaPiloto.Posicao,
+                    NumeroVitorias = resultadoTemporadaPiloto.NumeroVitorias
+                };
+                tabelaResultado.Add(resultadoPiloto);
+            }
+
+
+            return tabelaResultado;
         }
         #region Métodos
         private List<ResultadoCorridaViewModel> MontaResultadoTemporadaParcial(int temporadaId)
@@ -176,9 +216,9 @@ namespace CampCorr.Areas.Admin.Controllers
             return tabelaResultado;
         }
 
-        
 
-        
+
+
 
         private void ValidarPosicaoParaFinalizarEtapa(List<ResultadoCorrida> listaResultadoCorrida)
         {
@@ -219,39 +259,6 @@ namespace CampCorr.Areas.Admin.Controllers
             TempData["erros"] = mensagemErro;
         }
 
-        //private ResultadoCorrida MontaResultado(int etapaId, int pilotoId)
-        //{
-        //    ResultadoCorrida resultado = new ResultadoCorrida()
-        //    {
-        //        EtapaId = etapaId,
-        //        PilotoId = pilotoId,
-        //        EquipeId = _equipeService.BuscarEquipeDoPiloto(etapaId, pilotoId).EquipeId
-        //    };
-        //    return resultado;
-
-        //}
-        //private List<ResultadoCorrida> MontaListaResultado(List<ResultadoCorridaViewModel> resultadoVm)
-        //{
-        //    List<ResultadoCorrida> listaResultado = new List<ResultadoCorrida>();
-        //    foreach (var resultado in resultadoVm)
-        //    {
-        //        var resultadoCorrida = new ResultadoCorrida();
-
-        //        resultadoCorrida.PilotoId = resultado.PilotoId;
-        //        resultadoCorrida.EtapaId = resultado.EtapaId;
-        //        resultadoCorrida.Posicao = resultado.Posicao;
-        //        resultadoCorrida.EquipeId = resultado.EquipeId;
-        //        resultadoCorrida.MelhorVolta = resultado.MelhorVolta;
-        //        resultadoCorrida.PosicaoLargada = resultado.PosicaoLargada;
-        //        resultadoCorrida.TempoMelhorVolta = resultado.TempoMelhorVolta;
-        //        resultadoCorrida.TempoTotal = resultado.TempoTotal;
-        //        resultadoCorrida.PontosPenalidade = resultado.PontosPenalidade;
-        //        resultadoCorrida.DescricaoPenalidade = resultado.DescricaoPenalidade;
-
-        //        listaResultado.Add(resultadoCorrida);
-        //    }
-        //    return listaResultado;
-        //}
 
         private List<ResultadoCorridaViewModel> MontaListaResultadoVm(Etapa etapa)
         {
@@ -260,7 +267,7 @@ namespace CampCorr.Areas.Admin.Controllers
 
             foreach (var piloto in listaPilotos)
             {
-                var resultado =  _resultadoService.BuscarPilotoResultadoEtapa(etapa.EtapaId, piloto.PilotoId);
+                var resultado = _resultadoService.BuscarPilotoResultadoEtapa(etapa.EtapaId, piloto.PilotoId);
                 listaResultadoVm.Add(resultado);
             }
 

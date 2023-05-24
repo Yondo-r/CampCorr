@@ -23,6 +23,7 @@ namespace CampCorr.Context
         public DbSet<PilotoCampeonato> PilotosCampeonatos { get; set; }
         public DbSet<PilotoEquipe>  PilotosEquipes { get; set; }
         public DbSet<ResultadoCorrida> ResultadosCorrida { get; set; }
+        public DbSet<ResultadoTemporada> ResultadosTemporada { get; set; }
 
     }
 }

@@ -1,0 +1,51 @@
+﻿@model List<CampCorr.ViewModels.ResultadoCorridaViewModel>
+@{
+    int count = 0;
+}
+<h1>Resultados</h1>
+<div class="table-responsive">
+
+    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultadoTemporada">
+        <thead>
+            <tr>
+                <th scope="col">Pos</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Equipe</th>
+                <th scope="col">Pontos</th>
+                <th scope="col">Vitórias</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @foreach (var resultado in Model.OrderByDescending(x => x.Pontos))
+            {
+                count++;
+                <tr data-id="@resultado.PilotoId">
+                    <td>@resultado.Posicao</td>
+                    <td>@resultado.NomePiloto</td>
+                    <td>@resultado.NomeEquipe </td>
+                    <td>@resultado.Pontos</td>
+                    <td>@resultado.NumeroVitorias</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<hr />
+<div>
+    <a asp-action="Index">Voltar a lista de etapas</a>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function() {
+            $('#tabelaResultadoTemporada').DataTable({
+                searching: false,
+                lengthChange: false,
+                "columnDefs": [
+                    { "orderable": true, "targets": [3] },
+                    { "orderable": false, "targets": '_all' }
+                ]
+            });
+        })
+    </script>
+}

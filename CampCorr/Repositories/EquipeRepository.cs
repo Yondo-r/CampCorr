@@ -73,6 +73,10 @@ namespace CampCorr.Repositories
             return pilotosEquipe;
         }
 
+        public Equipe BuscarEquipe(int equipeId)
+        {
+            return _context.Equipes.FirstOrDefault(x => x.EquipeId == equipeId);
+        }
         public Equipe BuscarEquipe(int idEtapa, int idPiloto)
         {
             var temporadaId = _context.Etapas.Where(x => x.EtapaId == idEtapa).Select(x => x.TemporadaId).FirstOrDefault();

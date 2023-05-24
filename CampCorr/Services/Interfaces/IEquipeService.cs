@@ -6,6 +6,7 @@ namespace CampCorr.Services.Interfaces
     public interface IEquipeService
     {
         void SalvarEquipe(Equipe equipe);
+        Equipe BuscarEquipe(int equipeId);
         List<Equipe> BuscarEquipesCampeonato(int campeonatoId);
         Equipe BuscarEquipeDoPiloto(int etapaId, int pilotoId);
         List<Equipe> ListaEquipesTemporada(int temporadaId);
