@@ -206,6 +206,10 @@ namespace CampCorr.Services
                     {
                         item.Pontos = 0;
                     }
+                    if (item.Posicao < 0)
+                    {
+                        item.Posicao = item.Posicao * (-1);
+                    }
                 }
                 //Cria uma lista somente com os pilotos presentes
                 var ResultadoPilotosPresentes = resultadoCorridas.Where(x=>x.Posicao !=0).ToList();
