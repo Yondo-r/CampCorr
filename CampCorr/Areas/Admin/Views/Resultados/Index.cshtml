@@ -9,47 +9,54 @@
 @*Verificar se temporada e etapa estão concluídos e exibir em cor diferente*@
 <h1>Selecione a temporada</h1>
 
-<ul>
-    @foreach (var temporada in listaTemporadas)
-    {
-        var collapse = "#coll" + temporada.AnoTemporada.ToString();
-        var collpaseId = "coll" + temporada.AnoTemporada.ToString();
-        <li class="lista-item">
-            <button class="btn btn-secondary" data-bs-toggle="collapse" href="@collapse">@temporada.AnoTemporada</button>
-            <div class="collapse" id="@collpaseId">
-                <div class="card card-body" style="background-color:#373434">
-                    @foreach (var etapa in listaEtapas)
-                    {
-                        if (etapa.TemporadaId == temporada.TemporadaId)
-                        {
-                            if (etapa.Concluido)
-                            {
-                                quantidadeEtapasConcluida++;
-                                <div class="lista-item">
-                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Circuito.Nome (Concluída)</a>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="lista-item">
-                                    <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Circuito.Nome</a>
-                                </div>
-                            }
+@foreach (var temporada in listaTemporadas)
+{
+    var collapse = "#coll" + temporada.AnoTemporada.ToString();
+    var collpaseId = "coll" + temporada.AnoTemporada.ToString();
+    <li class="lista-item">
+        <button class="btn btn-secondary" data-bs-toggle="collapse" href="@collapse">@temporada.AnoTemporada</button>
 
-                        }
-                    }
-                </div>
-                <hr />
-                @if (listaEtapas.Count() == quantidadeEtapasConcluida)
+        <div class="collapse form-group" id="@collpaseId">
+            <div class="card card-body" style="background-color:#373434">
+                @foreach (var etapa in listaEtapas)
                 {
-                    <a asp-action="ConcluirTemporada" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Concluir Temporada</a>
+                    if (etapa.TemporadaId == temporada.TemporadaId)
+                    {
+                        if (etapa.Concluido)
+                        {
+                            quantidadeEtapasConcluida++;
+                            <div class="lista-item">
+                                <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Circuito.Nome (Concluída)</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="lista-item">
+                                <a asp-action="ResultadoCorrida" asp-route-etapaId="@etapa.EtapaId" class="btn" style="color:azure">@etapa.NumeroEvento - @etapa.Circuito.Nome</a>
+                            </div>
+                        }
+
+                    }
+                }
+            </div>
+            <hr />
+            @if (listaEtapas.Count() == quantidadeEtapasConcluida)
+            {
+                @if (temporada.Concluida)
+                {
+                    <a asp-action="ResultadoTemporada" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Ver Resultado da temporada</a>
                 }
                 else
                 {
-                    <a asp-action="AcompanharResultados" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Acompanhar Resultados</a>
+                    <a asp-action="ConcluirTemporada" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Concluir Temporada</a>
                 }
-            </div>
-        </li>
-    }
-</ul>
+            }
+            else
+            {
+                <a asp-action="AcompanharResultados" asp-route-temporadaId="@temporada.TemporadaId" class="btn btn-primary">Acompanhar Resultados</a>
+            }
+        </div>
+    </li>
+}
+
 

@@ -33,7 +33,7 @@
             {
                 <tr data-id="@resultadoCorridaViewModel[i].PilotoId">
                     <th scope="row"><button class="btn btn-hide editar-btn" type="button"><img src="~/images/Icones/editar.png" width="16" height="16" /></button></th>
-                    <td>@resultadoCorridaViewModel[i].Posicao</td>
+                    <td>@(resultadoCorridaViewModel[i].Posicao == 0 ? "ausente" : resultadoCorridaViewModel[i].Posicao.ToString())</td>
                     <td>@resultadoCorridaViewModel[i].NomePiloto</td>
                     <td>@resultadoCorridaViewModel[i].NomeEquipe </td>
                     <td>@resultadoCorridaViewModel[i].Pontos</td>

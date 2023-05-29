@@ -103,7 +103,14 @@ namespace CampCorr.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> FinalizarEtapa(int etapaId)
         {
+            var listaPilotosAusentes = MontaListaResultadoVm(_etapaService.BuscarEtapa(etapaId)).Where(x => x.Posicao == null).ToList();
+            foreach (var pilotoAusente in listaPilotosAusentes)
+            {
+                AdicionaResultadoAusente(pilotoAusente);
+            }
+
             List<ResultadoCorrida> listaResultadoCorrida = await _resultadoService.ListarResultadoEtapa(etapaId);
+
             ValidarPosicaoParaFinalizarEtapa(listaResultadoCorrida);
             if (ModelState.IsValid)
             {
@@ -133,6 +140,8 @@ namespace CampCorr.Areas.Admin.Controllers
             return RedirectToAction("ResultadoCorrida", new { etapaId = etapaId });
         }
 
+        
+
         public IActionResult AcompanharResultados(int temporadaId)
         {
             List<ResultadoCorridaViewModel> resultadoTemporadaParcial = MontaResultadoTemporadaParcial(temporadaId);
@@ -158,6 +167,21 @@ namespace CampCorr.Areas.Admin.Controllers
             return View(resultadoTemporada);
         }
 
+        
+        #region Métodos
+        //Salva na tabela de resultados o resultado do piloto com posição 0 para que ele não receba pontos
+        private void AdicionaResultadoAusente(ResultadoCorridaViewModel pilotoAusente)
+        {
+            ResultadoCorrida resultadoPilotoAusente = new ResultadoCorrida()
+            {
+                EtapaId = pilotoAusente.EtapaId,
+                Posicao = 0,
+                EquipeId = pilotoAusente.EquipeId,
+                PilotoId = pilotoAusente.PilotoId,
+            };
+            _resultadoService.Salvar(resultadoPilotoAusente);
+        }
+
         private List<ResultadoCorridaViewModel> MontaResultadoTemporada(int temporadaId)
         {
             List<ResultadoCorridaViewModel> tabelaResultado = new List<ResultadoCorridaViewModel>();
@@ -179,7 +203,7 @@ namespace CampCorr.Areas.Admin.Controllers
 
             return tabelaResultado;
         }
-        #region Métodos
+
         private List<ResultadoCorridaViewModel> MontaResultadoTemporadaParcial(int temporadaId)
         {
             List<ResultadoCorridaViewModel> tabelaResultado = new List<ResultadoCorridaViewModel>();
@@ -235,7 +259,7 @@ namespace CampCorr.Areas.Admin.Controllers
                 {
                     var nomePiloto = _pilotoService.BuscarPiloto(resultadoCorrida.PilotoId).Nome;
                     //Verifica se não tem dois pilotos cadastrados na mesma posição
-                    if (!posicao.Contains((int)resultadoCorrida.Posicao))
+                    if (!posicao.Contains((int)resultadoCorrida.Posicao) || (int)resultadoCorrida.Posicao == 0)
                     {
                         posicao.Add((int)resultadoCorrida.Posicao);
                     }
@@ -249,11 +273,11 @@ namespace CampCorr.Areas.Admin.Controllers
                         mensagemErro = mensagemErro + "É necessário adicionar a posição do(a) piloto(a) " + nomePiloto + "<br />";
                         ModelState.AddModelError("Posicao", "Não há posição para o piloto" + nomePiloto);
                     }
-                    if (resultadoCorrida.Posicao == 0)
-                    {
-                        mensagemErro = mensagemErro + "A posição do " + nomePiloto + " não pode ser 0" + "<br />";
-                        ModelState.AddModelError("Posicao", "A posição do " + nomePiloto + " não pode ser 0");
-                    }
+                    //if (resultadoCorrida.Posicao == 0)
+                    //{
+                    //    mensagemErro = mensagemErro + "A posição do " + nomePiloto + " não pode ser 0" + "<br />";
+                    //    ModelState.AddModelError("Posicao", "A posição do " + nomePiloto + " não pode ser 0");
+                    //}
                 }
             }
             TempData["erros"] = mensagemErro;

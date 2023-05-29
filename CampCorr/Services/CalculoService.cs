@@ -198,7 +198,19 @@ namespace CampCorr.Services
             {
                 var regrasAkgp = new RegrasAkgp();
                 var listaPontuação = regrasAkgp.MontarListaPontos();
-                resultadoCorridas = resultadoCorridas.OrderBy(x => x.Posicao).ToList();
+                
+                //Zera a pontução do piloto ausente
+                foreach (var item in resultadoCorridas)
+                {
+                    if (item.Posicao == 0)
+                    {
+                        item.Pontos = 0;
+                    }
+                }
+                //Cria uma lista somente com os pilotos presentes
+                var ResultadoPilotosPresentes = resultadoCorridas.Where(x=>x.Posicao !=0).ToList();
+                //Ordena os resultados por posição para poder distribuir os pontos
+                resultadoCorridas = ResultadoPilotosPresentes.OrderBy(x => x.Posicao).ToList();
                 //Verifica se é a ultima etapa.
                 if (VerificaSeUltimaEtapa(resultadoCorridas[0].EtapaId))
                 {
@@ -226,6 +238,7 @@ namespace CampCorr.Services
                         }
                     }
                 }
+
                 return true;
             }
             return false;
