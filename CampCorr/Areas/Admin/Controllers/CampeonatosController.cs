@@ -80,7 +80,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
             CampeonatoViewModel campeonatoVM = new CampeonatoViewModel(campeonato.CampeonatoId, campeonato.UserId, nomeUsuario, _utilitarioService.MontaImagem(campeonato.Logo));
             if (campeonato.Logo != null && campeonato.Logo.Length > 0)
             {
-                ViewBag.Logo = campeonato.Logo;
+                ViewBag.Logo = _utilitarioService.MontaImagem(campeonato.Logo);
             }
             campeonatoVM.Temporadas = _temporadasService.ListarTemporadasDoCampeonato(campeonatoId);
 
