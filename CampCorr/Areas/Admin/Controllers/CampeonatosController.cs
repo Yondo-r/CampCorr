@@ -11,6 +11,7 @@ using CampCorr.Repositories;
 using CampCorr.Repositories.Interfaces;
 using MockQueryable.Moq;
 using CampCorr.Services.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CampCorr.Areas.Campeonato.Controllers
 {
@@ -25,7 +26,9 @@ namespace CampCorr.Areas.Campeonato.Controllers
         private readonly IPilotoService _pilotoService;
         private readonly string nomeUsuario;
         private readonly int campeonatoId;
-        public CampeonatosController(SignInManager<IdentityUser> signInManager, ICampeonatoService icampeonatoService, IUsuarioService usuarioService, ITemporadaService temporadasService, IPilotoService pilotoService)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IUtilitarioService _utilitarioService;
+        public CampeonatosController(SignInManager<IdentityUser> signInManager, ICampeonatoService icampeonatoService, IUsuarioService usuarioService, ITemporadaService temporadasService, IPilotoService pilotoService, IWebHostEnvironment webHostEnvironment, IUtilitarioService utilitarioService)
         {
             _signInManager = signInManager;
             nomeUsuario = signInManager.Context.User.Identity.Name;
@@ -34,6 +37,8 @@ namespace CampCorr.Areas.Campeonato.Controllers
             _temporadasService = temporadasService;
             _pilotoService = pilotoService;
             campeonatoId = _campeonatoService.BuscarIdCampeonato(nomeUsuario);
+            _webHostEnvironment = webHostEnvironment;
+            _utilitarioService = utilitarioService;
         }
 
 
@@ -72,7 +77,11 @@ namespace CampCorr.Areas.Campeonato.Controllers
             {
                 return NotFound();
             }
-            CampeonatoViewModel campeonatoVM = new CampeonatoViewModel(campeonatoId, userId, nomeUsuario, campeonato.Logo);
+            CampeonatoViewModel campeonatoVM = new CampeonatoViewModel(campeonato.CampeonatoId, campeonato.UserId, nomeUsuario, _utilitarioService.MontaImagem(campeonato.Logo));
+            if (campeonato.Logo != null && campeonato.Logo.Length > 0)
+            {
+                ViewBag.Logo = campeonato.Logo;
+            }
             campeonatoVM.Temporadas = _temporadasService.ListarTemporadasDoCampeonato(campeonatoId);
 
             return View(campeonatoVM);
@@ -82,74 +91,29 @@ namespace CampCorr.Areas.Campeonato.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("IdCampeonato,NomeCampeonato,Logo")] CampeonatoViewModel campeonatoVm)
+        public async Task<IActionResult> Edit(IFormFile logo, [Bind("IdCampeonato,Logo,NomeCampeonato")] CampeonatoViewModel campeonatoVm)
         {
-
-            //campeonato.IdCampeonato = _campeonatoService.BuscarIdCampeonato(nomeUsuario); // _context.Campeonatos.AsNoTracking().Where(x => x.UserId == campeonato.UserId).FirstOrDefault().CampeonatoId;//camp.CampeonatoId;
-
             Models.Campeonato campeonato = await _campeonatoService.BuscarCampeonato(campeonatoVm.IdCampeonato);
-            campeonato.Logo = campeonatoVm.Logo;
-            
-            //new Models.Campeonato()
-            //{
-            //    CampeonatoId = campeonatoVm.IdCampeonato,
-            //    UserId = _usuarioService.BuscarIdUsuario(nomeUsuario),
-            //    Logo = campeonatoVm.Logo,
-            //};
+            if (logo != null && logo.Length > 0)
+            {
+                campeonato.Logo = _utilitarioService.PreparaImagem(logo);
+            }
+            campeonatoVm.NomeCampeonato = nomeUsuario;
 
             if (ModelState.IsValid)
             {
                 _campeonatoService.Atualizar(campeonato);
 
-                //CampeonatoViewModel campeonatoVM = new CampeonatoViewModel(campeonato.CampeonatoId, campeonato.UserId, nomeUsuario, campeonato.Logo);
-                campeonatoVm.Temporadas = _temporadasService.ListarTemporadasDoCampeonato(campeonato.CampeonatoId);
-                return View(campeonatoVm);
+                CampeonatoViewModel campeonatoVM = new CampeonatoViewModel(campeonato.CampeonatoId, campeonato.UserId, nomeUsuario, _utilitarioService.MontaImagem(campeonato.Logo));
+                campeonatoVM.Temporadas = _temporadasService.ListarTemporadasDoCampeonato(campeonato.CampeonatoId);
+                if (campeonato.Logo != null && campeonato.Logo.Length > 0)
+                {
+                    ViewBag.Logo = campeonato.Logo;
+                }
+                return View(campeonatoVM);
             }
             return View(campeonatoVm);
         }
-
-
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (_context.Campeonatos == null)
-        //    {
-        //        return Problem("Entity set 'AppDbContext.Categorias'  is null.");
-        //    }
-        //    var campeonatos = await _context.Campeonatos.FindAsync(id);
-        //    if (campeonatos != null)
-        //    {
-        //        _context.Campeonatos.Remove(campeonatos);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    if (_context.Campeonatos == null)
-        //    {
-        //        return Problem("Entity set 'AppDbContext.Categorias'  is null.");
-        //    }
-        //    var campeonatos = await _context.Campeonatos.FindAsync(id);
-        //    if (campeonatos != null)
-        //    {
-        //        _context.Campeonatos.Remove(campeonatos);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //public IActionResult Login(string returnUrl)
-        //{
-        //    return View(new LoginCampeonatoViewModel()
-        //    {
-        //        ReturnUrl = returnUrl
-        //    });
-        //}
 
         public async Task<IActionResult> BuscarPilotos(PilotoViewModel filtro, int pageindex = 1, string sort = "UserLogin")
         {
@@ -170,8 +134,6 @@ namespace CampCorr.Areas.Campeonato.Controllers
             model.RouteValue = new RouteValueDictionary { { "filtro.UserLogin", filtro.UserLogin } };
             return View(model);
         }
-
-
 
         public async Task<IActionResult> AddPilotoCampeonato(int pilotoId, [Bind("Id, PilotoId,CampeonatoId")] PilotoCampeonato pilotoCampeonato)
         {
@@ -205,7 +167,6 @@ namespace CampCorr.Areas.Campeonato.Controllers
             return View("VisualizarPilotosCampeonato", listaPilotosCampeonato);
         }
 
-
         private List<PilotoViewModel> MontarListaPilotoVmCampeonato()
         {
             List<PilotoViewModel> listaPilotoVm = new List<PilotoViewModel>();
@@ -229,10 +190,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
                     }
                 }
             }
-
             return listaPilotoVm;
         }
-
     }
-
 }

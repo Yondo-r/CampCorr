@@ -20,11 +20,13 @@ namespace CampCorr.Controllers
     {
         private readonly ICampeonatoService _campeonatoService;
         private readonly IUsuarioService _usuarioService;
+        private readonly IUtilitarioService _utilitarioService;
 
-        public HomeController(ICampeonatoService campeonatoService, IUsuarioService usuarioService)
+        public HomeController(ICampeonatoService campeonatoService, IUsuarioService usuarioService, IUtilitarioService utilitarioService)
         {
             _campeonatoService = campeonatoService;
             _usuarioService = usuarioService;
+            _utilitarioService = utilitarioService;
         }
 
         public async Task<IActionResult> Index(string filter, int pageindex = 1, string sort = "NomeCampeonato")
@@ -33,6 +35,7 @@ namespace CampCorr.Controllers
             var listaCampeonato = _campeonatoService.ListarCampeonatos();
             var resultadoVm = new List<CampeonatoViewModel>();
 
+            
             foreach (var item in usuario)
             {
                 var campeonato = listaCampeonato.Where(x => x.UserId == item.Id).FirstOrDefault();
@@ -40,7 +43,7 @@ namespace CampCorr.Controllers
                 {
                     resultadoVm.AddRange(new[]
                     {
-                        new CampeonatoViewModel(campeonato.CampeonatoId, item.Id, item.UserName, campeonato.Logo)
+                        new CampeonatoViewModel(campeonato.CampeonatoId, item.Id, item.UserName, _utilitarioService.MontaImagem(campeonato.Logo))
                     });
                 }
             }

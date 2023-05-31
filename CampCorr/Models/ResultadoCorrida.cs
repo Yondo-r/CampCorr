@@ -28,5 +28,6 @@ namespace CampCorr.Models
         [Display(Name = "Tempo total da prova")]
         public TimeSpan? TempoTotal { get; set; }
         public bool Advertencia { get; set; }
+        public byte[] ImagemResultadoCorrida { get; set; }
     }
 }

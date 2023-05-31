@@ -4,6 +4,7 @@ using CampCorr.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CampCorr.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230529181521_RemovendoCampos")]
+    partial class RemovendoCampos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +31,6 @@ namespace CampCorr.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CampeonatoId"), 1L, 1);
-
-                    b.Property<byte[]>("Logo")
-                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
@@ -70,9 +69,6 @@ namespace CampCorr.Migrations
 
                     b.Property<int>("CampeonatoId")
                         .HasColumnType("int");
-
-                    b.Property<byte[]>("Emblema")
-                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Nome")
                         .HasColumnType("nvarchar(max)");
@@ -156,9 +152,6 @@ namespace CampCorr.Migrations
 
                     b.Property<string>("Descricao")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("Foto")
-                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Nome")
                         .HasColumnType("nvarchar(max)");
@@ -277,9 +270,6 @@ namespace CampCorr.Migrations
 
                     b.Property<int>("EtapaId")
                         .HasColumnType("int");
-
-                    b.Property<byte[]>("ImagemResultadoCorrida")
-                        .HasColumnType("varbinary(max)");
 
                     b.Property<bool>("MelhorVolta")
                         .HasColumnType("bit");

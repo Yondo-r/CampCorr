@@ -20,6 +20,6 @@ namespace CampCorr.Models
         public string UsuarioId { get; set; }
         [Display (Name= "Descrição do Piloto")]
         public string Descricao { get; set; }
-        public string Foto { get; set; }
+        public byte[] Foto { get; set; }
     }
 }

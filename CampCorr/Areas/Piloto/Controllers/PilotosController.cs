@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using ReflectionIT.Mvc.Paging;
 using System.Threading.Tasks;
 using MockQueryable.Moq;
+using CampCorr.Services.Interfaces;
 
 namespace CampCorr.Areas.Piloto.Controllers
 {
@@ -22,8 +23,9 @@ namespace CampCorr.Areas.Piloto.Controllers
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly string nomeUsuario;
         private readonly IPilotoRepository _pilotoRepository;
+        private readonly IUtilitarioService _utilitarioService;
 
-        public PilotosController(AppDbContext context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IUsuarioRepository usuarioRepository, IPilotoRepository pilotoRepository)
+        public PilotosController(AppDbContext context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IUsuarioRepository usuarioRepository, IPilotoRepository pilotoRepository, IUtilitarioService utilitarioService)
         {
             _context = context;
             _userManager = userManager;
@@ -31,6 +33,7 @@ namespace CampCorr.Areas.Piloto.Controllers
             _usuarioRepository = usuarioRepository;
             nomeUsuario = signInManager.Context.User.Identity.Name;
             _pilotoRepository = pilotoRepository;
+            _utilitarioService = utilitarioService;
         }
         [Authorize(Roles = "Piloto")]
         public IActionResult Cadastro()
@@ -52,8 +55,12 @@ namespace CampCorr.Areas.Piloto.Controllers
                     Email = usuario.Email
 
                 };
+                if (piloto.Foto != null && piloto.Foto.Length > 0)
+                {
+                    ViewBag.Foto = _utilitarioService.MontaImagem(piloto.Foto);
+                }
 
-            return View(pilotoVM);
+                return View(pilotoVM);
             }
             else
             {
@@ -63,8 +70,12 @@ namespace CampCorr.Areas.Piloto.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Piloto")]
-        public async Task<IActionResult> Cadastro(string NomePiloto, string Email, string DescricaoPiloto, string Telefone,[Bind("PilotoId,DataNascimento,Peso,TipoSanguineo")] Models.Piloto piloto)
+        public async Task<IActionResult> Cadastro(IFormFile foto, string NomePiloto, string Email, string DescricaoPiloto, string Telefone,[Bind("PilotoId,DataNascimento,Peso,TipoSanguineo")] Models.Piloto piloto)
         {
+            if (foto != null && foto.Length > 0)
+            {
+                piloto.Foto = _utilitarioService.PreparaImagem(foto);
+            }
             if (ModelState.IsValid)
             {
                 var idUsuario = _usuarioRepository.BuscarIdUsuarioPorNome(nomeUsuario);

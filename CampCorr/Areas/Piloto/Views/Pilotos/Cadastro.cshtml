@@ -2,16 +2,17 @@
 
 @{
     ViewData["Title"] = "Index";
+    var foto = ViewBag.Foto;
 }
 
 <h1>Editar</h1>
 
-<h4>Bem vindo, @Model.NomePiloto</h4>
+<h4>Bem vindo, @Model.NomePiloto</h4> <img src="@foto" alt="Imagem" width="100" height="72" />
 
 <hr />
 
 <div class="form-outline form-white mb-4">
-    <form asp-action="Cadastro">
+    <form asp-action="Cadastro" enctype="multipart/form-data">
 
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="PilotoId" value="@Model.PilotoId" />
@@ -19,7 +20,7 @@
             <label asp-for="NomePiloto" class="control-label"></label>
             <input asp-for="NomePiloto" class="form-control" value="@Model.NomePiloto" />
             <span asp-validation-for="NomePiloto" class="text-danger"></span>
-            
+
         </div>
         <div class="form-group">
             <label asp-for="DataNascimento" class="control-label"></label>
@@ -52,15 +53,22 @@
             <span asp-validation-for="DescricaoPiloto" class="text-danger"></span>
         </div>
         <hr />
+        <div class="form-group">
+            <label asp-for="Foto" class="control-label"></label>
+            <div class="form-group">
+                <input type="file" name="foto" class="form-control-file " />
+            </div>
+        </div>
+        <hr />
         <div class="form-group" style="padding-left:10px">
             <input type="submit" value="Salvar" class="btn btn-primary" />
         </div>
         <hr />
-        
+
 
 
     </form>
-    
+
 </div>
 
 

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Editar";
+    var logo = ViewBag.Logo;
 }
 
 <h1>Editar</h1>
@@ -11,22 +12,41 @@
 <hr />
 
 <div class="form-outline form-white mb-4">
-    <form asp-action="Edit">
+    <form asp-action="Edit" enctype="multipart/form-data" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="IdCampeonato" value="@Model.IdCampeonato" />
+        <input type="hidden" asp-for="NomeCampeonato" value="@Model.NomeCampeonato" />
         <div class="form-group">
             <label asp-for="NomeCampeonato" class="control-label"></label>
-            <input asp-for="NomeCampeonato" class="form-control" />
+            @*<span class="form-control">@Model.NomeCampeonato</span>*@
+            <h3>@Model.NomeCampeonato</h3>
+
             <span asp-validation-for="NomeCampeonato" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Logo" class="control-label"></label>
-            <input asp-for="Logo" class="form-control" />
+            @if (Model.Logo == null)
+            {
+                <div class="form-group">
+                    <input type="file" name="logo" class="form-control-file " />
+                </div>
+            }
+            else
+            {
+                <img src="@logo" alt="Imagem" width="100" height="72" />
+                <hr />
+                <div>
+                    ALterar logo
+                </div>
+                <div class="form-group">
+                    <input type="file" name="logo" class="form-control-file " />
+                </div>
+            }
             <span asp-validation-for="Logo" class="text-danger"></span>
         </div>
         <hr />
         <div class="form-group">
-            <a asp-action="VisualizarPilotosCampeonato" asp-controller="Campeonatos"  class="botaoNavegacao btn">Pilotos do Campeonato</a> 
+            <a asp-action="VisualizarPilotosCampeonato" asp-controller="Campeonatos" class="botaoNavegacao btn">Pilotos do Campeonato</a>
         </div>
 
         <hr />

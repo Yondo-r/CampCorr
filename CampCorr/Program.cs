@@ -52,6 +52,7 @@ builder.Services.AddScoped<IResultadoService, ResultadoService>();
 builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 builder.Services.AddScoped<ITemporadaService, TemporadaService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IUtilitarioService, UtilitarioService>();
 
 //builder.Services.AddAuthorization(options =>
 //{
