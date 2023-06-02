@@ -44,8 +44,9 @@ namespace CampCorr.Areas.Campeonato.Controllers
             return View();
         }
 
-        public IActionResult Create(int? campeonatoId)
+        public IActionResult Create()
         {
+            ViewBag.Regulamentos = _regulamentoService.ListarRegulamentos();
             TempData["campeonatoId"] = campeonatoId;
             return View();
         }
@@ -65,10 +66,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
         public async Task<IActionResult> Edit(int ano)
         {
-            //if (_context.Campeonatos == null)
-            //{
-            //    return NotFound();
-            //}
+            ViewBag.Regulamentos = _regulamentoService.ListarRegulamentos();
             var temporada = await _temporadaService.BuscarTemporadaAsync(campeonatoId, ano);
             if (temporada == null)
             {
@@ -95,12 +93,12 @@ namespace CampCorr.Areas.Campeonato.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int temporadaId, [Bind("TemporadaId,QuantidadeEtapas,RegulamentoId")] Temporada temporada)
+        public async Task<IActionResult> Edit([Bind("TemporadaId,QuantidadeEtapas,RegulamentoId")] Temporada temporada)
         {
-            if (temporadaId != temporada.CampeonatoId)
-            {
-                return NotFound();
-            }
+            ViewBag.Regulamentos = _regulamentoService.ListarRegulamentos();
+
+            temporada.CampeonatoId = _campeonatoService.BuscarIdCampeonato(nomeUsuario);
+            temporada.TemporadaId = 34;
 
             if (ModelState.IsValid)
             {
@@ -119,7 +117,19 @@ namespace CampCorr.Areas.Campeonato.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                temporada.Etapas = _etapaService.ListarEtapasTemporada(temporada.TemporadaId);
+                foreach (var item in temporada.Etapas)
+                {
+                    item.Circuito = await _circuitoService.BuscarCircuitoAsync(item.CircuitoId);
+                }
+                CampeonatoViewModel campeonatoTemporadaVm = new CampeonatoViewModel()
+                {
+                    Etapas = temporada.Etapas.OrderBy(x => x.Data).ToList(),
+                    AnoTemporada = temporada.AnoTemporada,
+                    QuantidadeEtapas = temporada.QuantidadeEtapas,
+                    Regulamento = _regulamentoService.BuscarRegulamento(temporada.RegulamentoId).Nome
+                };
+                return View(campeonatoTemporadaVm);
             }
             return View(temporada);
         }

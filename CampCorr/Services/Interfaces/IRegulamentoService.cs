@@ -6,5 +6,6 @@ namespace CampCorr.Services.Interfaces
     {
         Regulamento BuscarRegulamento(int regulamentoId);
         Regulamento BuscarRegulamentoPorEtapa(int etapaId);
+        List<Regulamento> ListarRegulamentos();
     }
 }

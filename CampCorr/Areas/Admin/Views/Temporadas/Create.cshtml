@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Create";
+    var listaRegulamentos = ViewBag.Regulamentos;
 }
 
 <h1>Adicionar</h1>
@@ -13,15 +14,14 @@
 <div class="form-outline form-white mb-4">
     <form asp-action="Create">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input asp-for="CampeonatoId" hidden value=@TempData["campeonatoId"] />
         <div class="form-group">
             <label asp-for="QuantidadeEtapas" class="control-label"></label>
             <input asp-for="QuantidadeEtapas" class="form-control" />
             <span asp-validation-for="QuantidadeEtapas" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="RegulamentoId" class="control-label"></label>
-            <input asp-for="RegulamentoId" class="form-control" />
+            <label class="control-label">Selecione o regulamento</label>
+            @Html.DropDownList("RegulamentoId", new SelectList(listaRegulamentos, "RegulamentoId", "Nome"), new {@class = "form-select"})
             <span asp-validation-for="RegulamentoId" class="text-danger"></span>
         </div>
         <hr />

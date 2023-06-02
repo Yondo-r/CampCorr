@@ -1,6 +1,7 @@
 ﻿using CampCorr.Context;
 using CampCorr.Models;
 using CampCorr.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampCorr.Repositories
 {
@@ -20,6 +21,10 @@ namespace CampCorr.Repositories
         public Regulamento BuscarRegulamento(int regulamentoId)
         {
             return _context.Regulamentos.Where(x => x.RegulamentoId == regulamentoId).FirstOrDefault();
+        }
+        public List<Regulamento> ListarRegulamentos()
+        {
+            return  _context.Regulamentos.ToList();
         }
     }
 }
