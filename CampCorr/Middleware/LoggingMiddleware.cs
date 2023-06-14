@@ -2,17 +2,24 @@
 //using System.Threading.Tasks;
 //using Microsoft.AspNetCore.Http;
 //using Microsoft.Extensions.Logging;
+using CampCorr.Context;
+using CampCorr.Models;
+using CampCorr.Services.Interfaces;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace CampCorr.Middleware
 {
     public class LoggingMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<LoggingMiddleware> _logger;
+        //private readonly ILogService _logService;
 
-        public LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger)
+        public LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger/*, ILogService logService*/)
         {
             _next = next;
             _logger = logger;
+            //_logService = logService;
         }
 
         public async Task Invoke(HttpContext context)
@@ -51,10 +58,27 @@ namespace CampCorr.Middleware
                 _logger.LogInformation("Acesso bem-sucedido na action {Controller}/{Action}. Login: {Login}, IP: {IP}", controller, action, login, ip);
             }
 
-            // Grava os logs no banco de dados conforme necessário
-            // Exemplo:
-            // dbContext.Logs.Add(new LogEntry { Controller = controller, Action = action, Login = login, IP = ip, IsError = isError });
-            // dbContext.SaveChanges();
+            //Grava os logs no banco de dados conforme necessário
+            //Exemplo:
+            Logs logs = new Logs()
+            {
+                Controller = controller,
+                Action = action,
+                Login = login ?? "",
+                Ip = ip,
+                Horario = DateTime.Now,
+                IsError = isError
+            };
+            if (logs.Controller != null || logs.Action != null)
+            {
+                using (var scope = context.RequestServices.CreateScope())
+                {
+                    var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
+
+                    // Registra o log de erro no banco de dados
+                    logService.Salvar(logs);
+                }
+            }
         }
     }
 

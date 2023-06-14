@@ -41,6 +41,7 @@ builder.Services.AddTransient<IRegulamentoRepository, RegulamentoRepository>();
 builder.Services.AddTransient<IResultadoRepository, ResultadoRepository>();
 builder.Services.AddTransient<ITemporadaRepository, TemporadaRepository>();
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddTransient<ILogsRepository, LogsRepository>();
 //Servicos
 builder.Services.AddScoped<ICalculoService, CalculoService>();
 builder.Services.AddScoped<ICampeonatoService, CampeonatoService>();
@@ -54,6 +55,7 @@ builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 builder.Services.AddScoped<ITemporadaService, TemporadaService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IUtilitarioService, UtilitarioService>();
+builder.Services.AddScoped<ILogService, LogService>();
 
 //builder.Services.AddAuthorization(options =>
 //{
