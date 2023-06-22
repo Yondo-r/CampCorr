@@ -17,7 +17,7 @@ var connection = String.Empty;
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
-    connection = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+    connection = builder.Configuration.GetConnectionString("DefaultConnection");
 }
 else
 {
@@ -109,6 +109,7 @@ void CriarPerfisUsuarios(WebApplication app)
     {
         var service = scope.ServiceProvider.GetService<ISeedUserRoleInitial>();
         service.SeedRoles();
+        service.SeedCircuits();
         //service.SeedUsers();
     }
 }

@@ -12,6 +12,11 @@ namespace CampCorr.Services
         {
             _circuitoRepository = circuitoRepository;
         }
+
+        public void Add(Circuito circuito)
+        {
+            _circuitoRepository.Add(circuito);
+        }
         public List<Circuito> ListarCircuitos()
         {
             return _circuitoRepository.ListarCircuitos();

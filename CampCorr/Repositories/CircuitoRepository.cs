@@ -13,6 +13,12 @@ namespace CampCorr.Repositories
         {
             _context = context;
         }
+
+        public void Add(Circuito circuito)
+        {
+            _context.Add(circuito);
+            _context.SaveChanges();
+        }
         public List<Circuito> ListarCircuitos()
         {
             return _context.Circuitos.ToList();
