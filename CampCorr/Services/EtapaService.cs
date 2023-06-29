@@ -7,10 +7,12 @@ namespace CampCorr.Services
     public class EtapaService : IEtapaService
     {
         private readonly IEtapaRepository _etapaRepository;
+        private readonly ITemporadaRepository _temporadaRepository;
 
-        public EtapaService(IEtapaRepository etapaRepository)
+        public EtapaService(IEtapaRepository etapaRepository, ITemporadaRepository temporadaRepository)
         {
             _etapaRepository = etapaRepository;
+            _temporadaRepository = temporadaRepository;
         }
         public void Salvar(Etapa etapa)
         {
@@ -55,6 +57,29 @@ namespace CampCorr.Services
         public void ConcluirEtapa(int etapaId)
         {
             _etapaRepository.ConcluirEtapa(etapaId);
+        }
+
+        public string NavegarEtapas(string numeroEtapa, int navegacao)
+            //deverá receber um valor no formato (ex: "1 de 4" , -1)
+        {
+            string proximaEtapa;
+            int valorNumeroEtapa = Convert.ToInt32(numeroEtapa.Substring(0, 1));
+            int valorProximaEtapa = valorNumeroEtapa + navegacao;
+            proximaEtapa = Convert.ToString(valorProximaEtapa) + numeroEtapa.Substring(1);
+
+            return proximaEtapa;
+        }
+
+        public bool VerificaSeUltimaEtapa(int etapaId)
+        {
+            var etapa = _etapaRepository.BuscarEtapa(etapaId);
+            var temporada = _temporadaRepository.BuscarTemporada(etapa.TemporadaId);
+            var etapaTemporada = Convert.ToInt32(etapa.NumeroEvento.Substring(0, 1));
+            if (temporada.QuantidadeEtapas == etapaTemporada)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

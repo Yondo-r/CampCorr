@@ -21,12 +21,14 @@ namespace CampCorr.Controllers
         private readonly ICampeonatoService _campeonatoService;
         private readonly IUsuarioService _usuarioService;
         private readonly IUtilitarioService _utilitarioService;
+        private readonly IEtapaService _etapaService;
 
-        public HomeController(ICampeonatoService campeonatoService, IUsuarioService usuarioService, IUtilitarioService utilitarioService)
+        public HomeController(ICampeonatoService campeonatoService, IUsuarioService usuarioService, IUtilitarioService utilitarioService, IEtapaService etapaService)
         {
             _campeonatoService = campeonatoService;
             _usuarioService = usuarioService;
             _utilitarioService = utilitarioService;
+            _etapaService = etapaService;
         }
 
         public async Task<IActionResult> Index(string filter, int pageindex = 1, string sort = "NomeCampeonato")
@@ -75,6 +77,15 @@ namespace CampCorr.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public async Task<IActionResult> Details(string nomeCampeonato)
+        {
+            var campeonato = await _campeonatoService.BuscarCampeonato(await _campeonatoService.BuscarIdCampeonatoAsync(nomeCampeonato));
+            CampeonatoViewModel campeonatoVM = new CampeonatoViewModel(campeonato.CampeonatoId, campeonato.UserId, nomeCampeonato, _utilitarioService.MontaImagem(campeonato.Logo));
+            campeonatoVM.Etapas = _etapaService.ListarEtapasCampeonato(campeonato.CampeonatoId);
+
+            return View(campeonatoVM);
         }
     }
 }

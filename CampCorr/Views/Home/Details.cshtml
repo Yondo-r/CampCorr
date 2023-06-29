@@ -1,0 +1,18 @@
+﻿@model CampCorr.ViewModels.CampeonatoViewModel
+ @{
+
+ }
+ <h4>@Model.NomeCampeonato</h4>
+ <div>
+     <img src="@Html.DisplayFor(modelItem => @modelItem.Logo)" alt="Imagem" width="90" height="48" />
+ </div>
+ <hr />
+ @if (Model.Etapas.Count > 1)
+{
+    <div class="form-outline mb-5">
+        <a class="btn btn-outline-light btn-lg px-5"  asp-controller="TabelaResultado" asp-action="ResultadosAnteriores">Ver resultados anteriores</a>
+    </div>
+}
+<div class="form-outline mb-5">
+    <a class="btn btn-outline-light btn-lg px-5"  asp-controller="TabelaResultado" asp-action="ResultadoAtual" asp-route-nomeCampeonato="@Model.NomeCampeonato">Ver resultados da etapa atual</a>
+</div>

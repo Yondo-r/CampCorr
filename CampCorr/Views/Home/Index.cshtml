@@ -8,7 +8,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
 </head>
 
-<body class="fundoPadrao text-center">
+@*<body class="fundoPadrao text-center">*@
 
 
     @if (User.IsInRole("Adm"))
@@ -59,7 +59,8 @@
                             </th>
                             <th>
                                 @Html.DisplayNameFor(model => model.Logo)
-
+                            </th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,7 +75,7 @@
                                 </td>
 
                                 <td>
-                                    <a asp-action="Details" asp-route-id="@item.IdCampeonato">Detalhes</a>
+                                    <a asp-action="Details" asp-route-nomeCampeonato="@item.NomeCampeonato">Detalhes</a>
                                 </td>
                             </tr>
                         }
@@ -98,4 +99,4 @@
         </div>
 
     }
-</body>
+@*</body>*@

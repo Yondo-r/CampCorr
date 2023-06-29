@@ -1,0 +1,60 @@
+﻿@model List<CampCorr.ViewModels.ResultadoCorridaViewModel>
+@{
+    int count = 0;
+}
+<h1>Resultados</h1>
+<hr />
+<h4>@ViewBag.nomeCampeonato</h4>
+ <div>
+     <img src="@ViewBag.logoCampeonato" alt="Imagem" width="90" height="48" />
+ </div>
+ <hr />
+<div class="table-responsive">
+
+    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultadoParcial">
+        <thead>
+            <tr>
+                <th scope="col">Pos</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Equipe</th>
+                <th scope="col">Pontos</th>
+                <th scope="col">Vitórias</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @foreach (var resultado in Model.OrderByDescending(x => x.Pontos))
+            {
+                count++;
+                <tr data-id="@resultado.PilotoId">
+                    <td>@count</td>
+                    <td>@resultado.NomePiloto</td>
+                    <td>@resultado.NomeEquipe </td>
+                    <td>@resultado.Pontos</td>
+                    <td>@resultado.NumeroVitorias</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<hr />
+<div>
+    <a class="btn btn-outline-dark" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato">Ver resultados por etapa</a>
+</div>
+<div>
+    <a asp-action="Datails">Voltar</a>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function() {
+            $('#tabelaResultadoParcial').DataTable({
+                searching: false,
+                lengthChange: false,
+                "columnDefs": [
+                    { "orderable": true, "targets": [3] },
+                    { "orderable": false, "targets": '_all' }
+                ]
+            });
+        })
+    </script>
+}

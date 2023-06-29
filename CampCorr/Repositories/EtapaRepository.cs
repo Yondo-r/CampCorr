@@ -40,10 +40,17 @@ namespace CampCorr.Repositories
         public async Task<Etapa> BuscarEtapaAsync(string nomeUsuario, string numeroEtapa, int ano)
         {
             var temporadaId = await _temporadaRepository.BuscarIdTemporadaPorNomeUsuarioAsync(nomeUsuario, ano);
+            if (numeroEtapa.Count() == 1)
+            {
+                return await _context.Etapas
+                    .Where(x => x.TemporadaId == temporadaId
+                        && x.NumeroEvento.Substring(0, 1) == numeroEtapa.ToString())
+                    .FirstOrDefaultAsync();
+            }
             return await _context.Etapas
-                .Where(x => x.TemporadaId == temporadaId
-                    && x.NumeroEvento.Substring(0, 1) == numeroEtapa.ToString())
-                .FirstOrDefaultAsync();
+                    .Where(x => x.TemporadaId == temporadaId
+                        && x.NumeroEvento == numeroEtapa.ToString())
+                    .FirstOrDefaultAsync();
         }
         public async Task<Etapa> BuscarEtapaAsync(int etapaId)
         {

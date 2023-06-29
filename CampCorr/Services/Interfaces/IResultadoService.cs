@@ -12,5 +12,7 @@ namespace CampCorr.Services.Interfaces
         List<ResultadoTemporada> MontaListaResultadoFinalTemporada(int temporadaId);
         ResultadoCorridaViewModel BuscarPilotoResultadoEtapa(int etapaId, int pilotoId);
         void ConcluirTemporada(List<ResultadoTemporada> resultadosTemporada, Temporada temporada);
+        List<ResultadoCorridaViewModel> MontaResultadoTemporadaParcial(int temporadaId);
+        List<ResultadoCorridaViewModel> MontaListaResultadoVm(Etapa etapa);
     }
 }

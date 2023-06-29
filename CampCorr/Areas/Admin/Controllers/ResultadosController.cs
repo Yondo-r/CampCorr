@@ -75,7 +75,7 @@ namespace CampCorr.Areas.Admin.Controllers
             var listaEquipes = _equipeService.ListaEquipesTemporada(etapa.TemporadaId);
             ViewBag.ListaEquipe = listaEquipes;
             ViewBag.etapaConcluida = etapa.Concluido;
-            var listaResultadoVm = MontaListaResultadoVm(etapa);
+            var listaResultadoVm = _resultadoService.MontaListaResultadoVm(etapa);
             ViewBag.listaResultado = listaResultadoVm;
             return View();
         }
@@ -97,13 +97,13 @@ namespace CampCorr.Areas.Admin.Controllers
             {
                 _resultadoService.Salvar(resultadoCorrida);
             }
-            ViewBag.listaResultado = MontaListaResultadoVm(etapa);
+            ViewBag.listaResultado = _resultadoService.MontaListaResultadoVm(etapa);
             return RedirectToAction("ResultadoCorrida", new { etapaId = etapa.EtapaId });
         }
         [HttpPost]
         public async Task<IActionResult> FinalizarEtapa(int etapaId)
         {
-            var listaPilotosAusentes = MontaListaResultadoVm(_etapaService.BuscarEtapa(etapaId)).Where(x => x.Posicao == null).ToList();
+            var listaPilotosAusentes = _resultadoService.MontaListaResultadoVm(_etapaService.BuscarEtapa(etapaId)).Where(x => x.Posicao == null).ToList();
             foreach (var pilotoAusente in listaPilotosAusentes)
             {
                 AdicionaResultadoAusente(pilotoAusente);
@@ -144,7 +144,7 @@ namespace CampCorr.Areas.Admin.Controllers
 
         public IActionResult AcompanharResultados(int temporadaId)
         {
-            List<ResultadoCorridaViewModel> resultadoTemporadaParcial = MontaResultadoTemporadaParcial(temporadaId);
+            List<ResultadoCorridaViewModel> resultadoTemporadaParcial = _resultadoService.MontaResultadoTemporadaParcial(temporadaId);
             return View(resultadoTemporadaParcial);
         }
 
@@ -204,41 +204,7 @@ namespace CampCorr.Areas.Admin.Controllers
             return tabelaResultado;
         }
 
-        private List<ResultadoCorridaViewModel> MontaResultadoTemporadaParcial(int temporadaId)
-        {
-            List<ResultadoCorridaViewModel> tabelaResultado = new List<ResultadoCorridaViewModel>();
-            List<ResultadoCorrida> resultadoTemporadaParcial = _resultadoService.MontaListaResultadoTemporada(temporadaId);
-            List<CampCorr.Models.Piloto> listaPilotos = _pilotoService.MontaListaPilotosTemporada(temporadaId);
-
-            foreach (var piloto in listaPilotos)
-            {
-                int pontos = 0;
-                int vitorias = 0;
-                var listaResultadosDoPiloto = resultadoTemporadaParcial.Where(x => x.PilotoId == piloto.PilotoId).ToList();
-
-                //Soma os pontos do piloto
-                foreach (var resultadoDoPiloto in listaResultadosDoPiloto)
-                {
-                    pontos += (int)resultadoDoPiloto.Pontos;
-
-                    //Verifica quantas vitórias o piloto possui. 
-                    if (resultadoDoPiloto.Posicao == 1)
-                    {
-                        vitorias++;
-                    }
-                }
-                ResultadoCorridaViewModel resultadoPiloto = new ResultadoCorridaViewModel()
-                {
-                    NomePiloto = piloto.Nome,
-                    NomeEquipe = _equipeService.BuscarEquipeDoPiloto(listaResultadosDoPiloto[0].EtapaId, piloto.PilotoId).Nome,
-                    Pontos = pontos,
-                    NumeroVitorias = vitorias,
-                };
-                tabelaResultado.Add(resultadoPiloto);
-            }
-            //tabelaResultado = (List<ResultadoCorridaViewModel>)tabelaResultado.OrderByDescending(x => x.Pontos);
-            return tabelaResultado;
-        }
+        
 
 
 
@@ -284,19 +250,7 @@ namespace CampCorr.Areas.Admin.Controllers
         }
 
 
-        private List<ResultadoCorridaViewModel> MontaListaResultadoVm(Etapa etapa)
-        {
-            List<ResultadoCorridaViewModel> listaResultadoVm = new List<ResultadoCorridaViewModel>();
-            List<PilotoViewModel> listaPilotos = _pilotoService.ListarPilotosVmTemporada(etapa.TemporadaId);
-
-            foreach (var piloto in listaPilotos)
-            {
-                var resultado = _resultadoService.BuscarPilotoResultadoEtapa(etapa.EtapaId, piloto.PilotoId);
-                listaResultadoVm.Add(resultado);
-            }
-
-            return listaResultadoVm;
-        }
+        
         #endregion
     }
 }

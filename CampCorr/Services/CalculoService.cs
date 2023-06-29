@@ -16,14 +16,16 @@ namespace CampCorr.Services
         private readonly ITemporadaRepository _temporadaRepository;
         private readonly IPilotoRepository _pilotoRepository;
         private readonly IResultadoRepository _resultadoRepository;
+        private readonly IEtapaService _etapaService;
 
-        public CalculoService(IRegulamentoRepository regulamentoRepository, IEtapaRepository etapaRepository, ITemporadaRepository temporadaRepository, IPilotoRepository pilotoRepository, IResultadoRepository resultadoRepository)
+        public CalculoService(IRegulamentoRepository regulamentoRepository, IEtapaRepository etapaRepository, ITemporadaRepository temporadaRepository, IPilotoRepository pilotoRepository, IResultadoRepository resultadoRepository, IEtapaService etapaService)
         {
             _regulamentoRepository = regulamentoRepository;
             _etapaRepository = etapaRepository;
             _temporadaRepository = temporadaRepository;
             _pilotoRepository = pilotoRepository;
             _resultadoRepository = resultadoRepository;
+            _etapaService = etapaService;
         }
 
         public bool CalcularResultadoEtapa(List<ResultadoCorrida> listaResultadoCorridas)
@@ -216,7 +218,7 @@ namespace CampCorr.Services
                 //Ordena os resultados por posição para poder distribuir os pontos
                 resultadoCorridas = ResultadoPilotosPresentes.OrderBy(x => x.Posicao).ToList();
                 //Verifica se é a ultima etapa.
-                if (VerificaSeUltimaEtapa(resultadoCorridas[0].EtapaId))
+                if (_etapaService.VerificaSeUltimaEtapa(resultadoCorridas[0].EtapaId))
                 {
                     for (int i = 0; i < resultadoCorridas.Count(); i++)
                     {
@@ -243,18 +245,6 @@ namespace CampCorr.Services
                     }
                 }
 
-                return true;
-            }
-            return false;
-        }
-
-        private bool VerificaSeUltimaEtapa(int etapaId)
-        {
-            var etapa = _etapaRepository.BuscarEtapa(etapaId);
-            var temporada = _temporadaRepository.BuscarTemporada(etapa.TemporadaId);
-            var etapaTemporada = Convert.ToInt32(etapa.NumeroEvento.Substring(0, 1));
-            if (temporada.QuantidadeEtapas == etapaTemporada)
-            {
                 return true;
             }
             return false;

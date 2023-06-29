@@ -1,0 +1,62 @@
+﻿@{
+    //ViewData["NomeCampeonato"] = "NomeCampeonato";
+    List<ResultadoCorridaViewModel> resultadoCorridaViewModel = ViewBag.listaResultado;
+    var nomeCampeonato = ViewBag.nomeCampeonato;
+    ViewData["LocalEnvento"] = "nomeCircuito";
+}
+<div>
+    <h1>Resultados da etapa @ViewBag.numeroEtapa</h1>
+    <a class="btn btn-outline-light" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato" asp-route-numeroEtapa="@ViewBag.numeroEtapa" asp-route-navegacao=-1>< anterior</a>
+    @if (!ViewBag.ultimaEtapa)
+    {
+     <a class="btn btn-outline-light" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato" asp-route-numeroEtapa="@ViewBag.numeroEtapa" asp-route-navegacao=1>próxima ></a>
+    }
+</div>
+<hr />
+<h4>@nomeCampeonato</h4>
+ <div>
+     <img src="@ViewBag.logoCampeonato" alt="Imagem" width="90" height="48" />
+ </div>
+ <hr />
+
+<div class="table-responsive">
+
+    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultadoEtapa">
+        <thead>
+            <tr>
+                
+                <th scope="col">Pos</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Equipe</th>
+                <th scope="col">Pontos</th>
+                <th scope="col">Penalidade</th>
+                <th scope="col">Largada</th>
+                <th scope="col">Tempo total</th>
+                <th scope="col">Total de voltas</th>
+                <th scope="col">Tempo Melhor volta</th>
+                <th scope="col">Melhor volta</th>
+                
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @for (int i = 0; i < @resultadoCorridaViewModel.Count(); i++)
+            {
+                <tr data-id="@resultadoCorridaViewModel[i].PilotoId">
+                    <td>@(resultadoCorridaViewModel[i].Posicao == 0 ? "ausente" : resultadoCorridaViewModel[i].Posicao.ToString())</td>
+                    <td>@resultadoCorridaViewModel[i].NomePiloto</td>
+                    <td>@resultadoCorridaViewModel[i].NomeEquipe </td>
+                    <td>@resultadoCorridaViewModel[i].Pontos</td>
+                    <td>@resultadoCorridaViewModel[i].PontosPenalidade</td>
+                    <td>@resultadoCorridaViewModel[i].PosicaoLargada</td>
+                    <td>@String.Format("{0:hh\\:mm\\:ss\\.fff}", resultadoCorridaViewModel[i].TempoTotal)</td>
+                    <td>@resultadoCorridaViewModel[i].TotalVoltas</td>
+                    <td>@String.Format("{0:mm\\:ss\\.fff}", resultadoCorridaViewModel[i].TempoMelhorVolta)</td>
+                    <td>@(resultadoCorridaViewModel[i].MelhorVolta ? "Sim" : "Não")</td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<hr />
+<a asp-action="Datails">Voltar</a>

@@ -14,8 +14,10 @@ namespace CampCorr.Services.Interfaces
         Etapa BuscarEtapa(int etapaId);
         List<Etapa> ListarEtapasTemporada(int temporadaId);
         List<Etapa> ListarEtapasCampeonato(int campeonatoId);
+        //O serviço de calculo está concluindo a etapa
         void ConcluirEtapa(int etapaId);
-
+        string NavegarEtapas(string numeroEtapa, int navegacao);
+        bool VerificaSeUltimaEtapa(int etapaId);
 
     }
 }
