@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Editar";
+    var temporadaId = Model.TemporadaId;
     var listaRegulamentos = ViewBag.Regulamentos;
 }
 
@@ -14,6 +15,7 @@
 <div class="form-outline form-white mb-4">
     <form asp-action="Edit">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="TemporadaId" value=@Model.TemporadaId/>
         <div class="form-group">
             <label asp-for="AnoTemporada" class="control-label"></label>
             <input asp-for="AnoTemporada" class="form-control" />
@@ -26,8 +28,10 @@
         </div>
         <div class="form-group">
             <label asp-for="Regulamento" class="control-label"></label>
-            @Html.DropDownList("RegulamentoId", new SelectList(listaRegulamentos, "RegulamentoId", "Nome"), @Model.Regulamento ,new {@class = "form-select"})
-            <span asp-validation-for="Regulamento" class="text-danger"></span>
+            @Html.DropDownList("RegulamentoId", new SelectList(listaRegulamentos, "RegulamentoId", "Nome"), @Model.RegulamentoId.ToString(), new { @class = "form-select" })
+
+            @*@Html.DropDownList("RegulamentoId", new SelectList(listaRegulamentos, "RegulamentoId", "Nome"), @Model.Regulamento ,new {@class = "form-select"})*@
+            <span asp-validation-for="RegulamentoId" class="text-danger"></span>
         </div>
         <hr />
         <div class="form-group">

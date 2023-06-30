@@ -81,5 +81,22 @@ namespace CampCorr.Services
             }
             return false;
         }
+
+        public int VerificaNumeroEtapaAtual(int etapaId)
+        {
+            var etapa = _etapaRepository.BuscarEtapa(etapaId);
+            //Verifica quantas casas decimais tem a quantidade de etapas
+            int casasQuantidadeEtapas = _temporadaRepository.BuscarTemporada(etapa.TemporadaId).QuantidadeEtapas.ToString().Count();
+            int etapaAtual = Convert.ToInt32(etapa.NumeroEvento.Substring(0, casasQuantidadeEtapas));
+            return etapaAtual;
+        }
+
+        public int VerificaNumeroEtapaAtual(string numeroEvento, int temporadaId)
+        {
+            //Verifica quantas casas decimais tem a quantidade de etapas
+            int casasQuantidadeEtapas = _temporadaRepository.BuscarTemporada(temporadaId).QuantidadeEtapas.ToString().Count();
+            int etapaAtual = Convert.ToInt32(numeroEvento.Substring(0, casasQuantidadeEtapas));
+            return etapaAtual;
+        }
     }
 }

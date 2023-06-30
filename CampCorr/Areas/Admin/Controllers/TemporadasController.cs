@@ -83,7 +83,10 @@ namespace CampCorr.Areas.Campeonato.Controllers
                 Etapas = temporada.Etapas.OrderBy(x => x.Data).ToList(),
                 AnoTemporada = temporada.AnoTemporada,
                 QuantidadeEtapas = temporada.QuantidadeEtapas,
-                Regulamento = _regulamentoService.BuscarRegulamento(temporada.RegulamentoId).Nome
+                Regulamento = _regulamentoService.BuscarRegulamento(temporada.RegulamentoId).Nome,
+                RegulamentoId = temporada.RegulamentoId,
+                TemporadaId = temporada.TemporadaId
+                
             };
 
             return View(campeonatoTemporadaVm);
@@ -98,7 +101,6 @@ namespace CampCorr.Areas.Campeonato.Controllers
             ViewBag.Regulamentos = _regulamentoService.ListarRegulamentos();
 
             temporada.CampeonatoId = _campeonatoService.BuscarIdCampeonato(nomeUsuario);
-            temporada.TemporadaId = 34;
 
             if (ModelState.IsValid)
             {

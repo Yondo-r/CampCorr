@@ -65,7 +65,10 @@ namespace CampCorr.Areas.Campeonato.Controllers
             var temporada = await _temporadasService.BuscarTemporadaAsync(campeonatoId, anoTemporada);
             etapa.TemporadaId = await _temporadasService.BuscarIdTemporadaAsync(nomeUsuario, etapa.Data.Year);
             //etapa.TemporadaId = temporadaId;
-            var etapaAtual = Convert.ToInt32(etapa.NumeroEvento.Substring(0, 1));
+
+
+
+            var etapaAtual = _etapaService.VerificaNumeroEtapaAtual(etapa.NumeroEvento, temporada.TemporadaId); //Convert.ToInt32(etapa.NumeroEvento.Substring(0, 1));
             if (ModelState.IsValid)
             {
                 _etapaService.Salvar(etapa);

@@ -18,6 +18,8 @@ namespace CampCorr.Services.Interfaces
         void ConcluirEtapa(int etapaId);
         string NavegarEtapas(string numeroEtapa, int navegacao);
         bool VerificaSeUltimaEtapa(int etapaId);
+        int VerificaNumeroEtapaAtual(int etapaId);
+        int VerificaNumeroEtapaAtual(string numeroEvento, int temporadaId);
 
     }
 }

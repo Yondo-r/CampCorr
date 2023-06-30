@@ -12,6 +12,8 @@ namespace CampCorr.ViewModels
         [StringLength(50)]
         public string NomeCampeonato { get; set; }
         public string UserId { get; set; }
+        public int TemporadaId { get; set; }
+        public int RegulamentoId { get; set; }
         public string Logo { get; set; }
         public string Senha { get; set; }
         public int AnoTemporada { get; set; } = DateTime.Now.Year;
