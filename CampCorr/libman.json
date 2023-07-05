@@ -63,6 +63,13 @@
     {
       "library": "jquery.inputmask@5.0.8",
       "destination": "wwwroot/jquery.inputmask/"
+    },
+    {
+      "library": "font-awesome@6.4.0",
+      "destination": "wwwroot/font-awesome/",
+      "files": [
+        "css/all.min.css"
+      ]
     }
   ]
 }

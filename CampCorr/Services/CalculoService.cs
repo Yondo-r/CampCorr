@@ -218,7 +218,7 @@ namespace CampCorr.Services
                 //Ordena os resultados por posição para poder distribuir os pontos
                 resultadoCorridas = ResultadoPilotosPresentes.OrderBy(x => x.Posicao).ToList();
                 //Verifica se é a ultima etapa.
-                if (_etapaService.VerificaSeUltimaEtapa(resultadoCorridas[0].EtapaId))
+                if (_etapaService.VerificaSePrimeiraOuUltimaEtapa(resultadoCorridas[0].EtapaId) == "ultima")
                 {
                     for (int i = 0; i < resultadoCorridas.Count(); i++)
                     {

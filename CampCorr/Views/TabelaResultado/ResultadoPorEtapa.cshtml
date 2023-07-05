@@ -6,25 +6,35 @@
 }
 <div>
     <h1>Resultados da etapa @ViewBag.numeroEtapa</h1>
-    <a class="btn btn-outline-light" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato" asp-route-numeroEtapa="@ViewBag.numeroEtapa" asp-route-navegacao=-1>< anterior</a>
-    @if (!ViewBag.ultimaEtapa)
+    @if (ViewBag.primeiraUltimaEtapa == "ultima" || ViewBag.primeiraUltimaEtapa == null)
     {
-     <a class="btn btn-outline-light" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato" asp-route-numeroEtapa="@ViewBag.numeroEtapa" asp-route-navegacao=1>próxima ></a>
+        <a class="btn btn-outline-light" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato" asp-route-numeroEtapa="@ViewBag.numeroEtapa" asp-route-navegacao=-1> &lt anterior</a>
+    }
+    @if (ViewBag.primeiraUltimaEtapa == "primeira" || ViewBag.primeiraUltimaEtapa == null)
+    {
+        <a class="btn btn-outline-light" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato" asp-route-numeroEtapa="@ViewBag.numeroEtapa" asp-route-navegacao=1>próxima ></a>
     }
 </div>
 <hr />
 <h4>@nomeCampeonato</h4>
- <div>
-     <img src="@ViewBag.logoCampeonato" alt="Imagem" width="90" height="48" />
- </div>
- <hr />
+<div>
+    @if (@ViewBag.logoCampeonato != null)
+    {
+        <img src="@ViewBag.logoCampeonato" alt="Imagem" width="90" height="48" />
+    }
+    else
+    {
+        <i class="fas fa-image" style="font-size: 34px;"></i>
+    }
+</div>
+<hr />
 
 <div class="table-responsive">
 
-    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultadoEtapa">
+    <table class="table dataTable table-dark table-striped table-bordered table-condensed" style="vertical-align: middle;" id="tabelaResultadoEtapa">
         <thead>
-            <tr>
-                
+            <tr style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+
                 <th scope="col">Pos</th>
                 <th scope="col">Nome</th>
                 <th scope="col">Equipe</th>
@@ -35,16 +45,16 @@
                 <th scope="col">Total de voltas</th>
                 <th scope="col">Tempo Melhor volta</th>
                 <th scope="col">Melhor volta</th>
-                
+
             </tr>
         </thead>
         <tbody class="table-group-divider">
             @for (int i = 0; i < @resultadoCorridaViewModel.Count(); i++)
             {
-                <tr data-id="@resultadoCorridaViewModel[i].PilotoId">
+                <tr style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" data-id="@resultadoCorridaViewModel[i].PilotoId">
                     <td>@(resultadoCorridaViewModel[i].Posicao == 0 ? "ausente" : resultadoCorridaViewModel[i].Posicao.ToString())</td>
                     <td>@resultadoCorridaViewModel[i].NomePiloto</td>
-                    <td>@resultadoCorridaViewModel[i].NomeEquipe </td>
+                    <td style="font-size: 14px;">@resultadoCorridaViewModel[i].NomeEquipe </td>
                     <td>@resultadoCorridaViewModel[i].Pontos</td>
                     <td>@resultadoCorridaViewModel[i].PontosPenalidade</td>
                     <td>@resultadoCorridaViewModel[i].PosicaoLargada</td>
@@ -52,11 +62,27 @@
                     <td>@resultadoCorridaViewModel[i].TotalVoltas</td>
                     <td>@String.Format("{0:mm\\:ss\\.fff}", resultadoCorridaViewModel[i].TempoMelhorVolta)</td>
                     <td>@(resultadoCorridaViewModel[i].MelhorVolta ? "Sim" : "Não")</td>
-                    
+
                 </tr>
             }
         </tbody>
     </table>
 </div>
 <hr />
-<a asp-action="Datails">Voltar</a>
+<a asp-controller="Home" asp-action="Details" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato">Voltar</a>
+
+@section scripts{
+    <script>
+        $(document).ready(function() {
+            $('#tabelaResultadoEtapa').DataTable({
+                searching: false,
+                lengthChange: false,
+                "pageLength": 30,
+                "columnDefs": [
+                    { "orderable": true, "targets": [0, 1, 2, 3, 5] },
+                    { "orderable": false, "targets": '_all' }
+                ]
+            });
+        });
+    </script>
+}

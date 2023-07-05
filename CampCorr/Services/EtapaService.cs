@@ -70,16 +70,20 @@ namespace CampCorr.Services
             return proximaEtapa;
         }
 
-        public bool VerificaSeUltimaEtapa(int etapaId)
+        public string VerificaSePrimeiraOuUltimaEtapa(int etapaId)
         {
             var etapa = _etapaRepository.BuscarEtapa(etapaId);
             var temporada = _temporadaRepository.BuscarTemporada(etapa.TemporadaId);
             var etapaTemporada = Convert.ToInt32(etapa.NumeroEvento.Substring(0, 1));
+            if (etapaTemporada == 1)
+            {
+                return "primeira";
+            }
             if (temporada.QuantidadeEtapas == etapaTemporada)
             {
-                return true;
+                return "ultima";
             }
-            return false;
+            return null;
         }
 
         public int VerificaNumeroEtapaAtual(int etapaId)

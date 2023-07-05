@@ -22,13 +22,17 @@ namespace CampCorr.Controllers
         private readonly IUsuarioService _usuarioService;
         private readonly IUtilitarioService _utilitarioService;
         private readonly IEtapaService _etapaService;
+        private readonly ITemporadaService _temporadaService;
+        private readonly IResultadoService _resultadoService;
 
-        public HomeController(ICampeonatoService campeonatoService, IUsuarioService usuarioService, IUtilitarioService utilitarioService, IEtapaService etapaService)
+        public HomeController(ICampeonatoService campeonatoService, IUsuarioService usuarioService, IUtilitarioService utilitarioService, IEtapaService etapaService, ITemporadaService temporadaService, IResultadoService resultadoService)
         {
             _campeonatoService = campeonatoService;
             _usuarioService = usuarioService;
             _utilitarioService = utilitarioService;
             _etapaService = etapaService;
+            _temporadaService = temporadaService;
+            _resultadoService = resultadoService;
         }
 
         public async Task<IActionResult> Index(string filter, int pageindex = 1, string sort = "NomeCampeonato")
@@ -83,7 +87,10 @@ namespace CampCorr.Controllers
         {
             var campeonato = await _campeonatoService.BuscarCampeonato(await _campeonatoService.BuscarIdCampeonatoAsync(nomeCampeonato));
             CampeonatoViewModel campeonatoVM = new CampeonatoViewModel(campeonato.CampeonatoId, campeonato.UserId, nomeCampeonato, _utilitarioService.MontaImagem(campeonato.Logo));
+            campeonatoVM.TemporadaId = await _temporadaService.BuscarIdTemporadaAsync(nomeCampeonato, DateTime.Now.Year);
             campeonatoVM.Etapas = _etapaService.ListarEtapasCampeonato(campeonato.CampeonatoId);
+            ViewBag.resultados = _resultadoService.MontaResultadoTemporadaParcial(campeonatoVM.TemporadaId);
+            campeonatoVM.Temporadas = _temporadaService.ListarTemporadasDoCampeonato(campeonato.CampeonatoId);
 
             return View(campeonatoVM);
         }

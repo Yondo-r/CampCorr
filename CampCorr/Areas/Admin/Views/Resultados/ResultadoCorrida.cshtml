@@ -7,9 +7,9 @@
 }
 
 <h1>Resultados</h1>
-<div class="table-responsive">
+<div class="table-responsive" >
 
-    <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultadoEtapa">
+    <table class="table dataTable table-dark table-striped table-bordered table-condensed" style="vertical-align: middle;" id="tabelaResultadoEtapa">
         <thead>
             <tr>
                 <th scope="col"></th>
@@ -31,12 +31,12 @@
         <tbody class="table-group-divider">
             @for (int i = 0; i < @resultadoCorridaViewModel.Count(); i++)
             {
-                <tr data-id="@resultadoCorridaViewModel[i].PilotoId">
+                <tr style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" data-id="@resultadoCorridaViewModel[i].PilotoId">
                     <th scope="row"><button class="btn btn-hide editar-btn" type="button"><img src="~/images/Icones/editar.png" width="16" height="16" /></button></th>
                     <td>@(resultadoCorridaViewModel[i].Posicao == 0 ? "ausente" : resultadoCorridaViewModel[i].Posicao.ToString())</td>
                     <td>@resultadoCorridaViewModel[i].NomePiloto</td>
-                    <td>@resultadoCorridaViewModel[i].NomeEquipe </td>
-                    <td>@resultadoCorridaViewModel[i].Pontos</td>
+                    <td style="font-size: 14px;">@resultadoCorridaViewModel[i].NomeEquipe </td>
+                    <td >@resultadoCorridaViewModel[i].Pontos</td>
                     <td>@resultadoCorridaViewModel[i].PontosPenalidade</td>
                     <td>@resultadoCorridaViewModel[i].PosicaoLargada</td>
                     <td>@String.Format("{0:hh\\:mm\\:ss\\.fff}", resultadoCorridaViewModel[i].TempoTotal)</td>
@@ -154,6 +154,7 @@
             $('#tabelaResultadoEtapa').DataTable({
                 searching: false,
                 lengthChange: false,
+                "pageLength": 30,
                 "columnDefs": [
                     { "orderable": true, "targets": [1, 2, 4, 6] },
                     { "orderable": false, "targets": '_all' }

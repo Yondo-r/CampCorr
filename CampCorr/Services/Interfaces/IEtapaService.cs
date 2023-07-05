@@ -17,7 +17,7 @@ namespace CampCorr.Services.Interfaces
         //O serviço de calculo está concluindo a etapa
         void ConcluirEtapa(int etapaId);
         string NavegarEtapas(string numeroEtapa, int navegacao);
-        bool VerificaSeUltimaEtapa(int etapaId);
+        string VerificaSePrimeiraOuUltimaEtapa(int etapaId);
         int VerificaNumeroEtapaAtual(int etapaId);
         int VerificaNumeroEtapaAtual(string numeroEvento, int temporadaId);
 

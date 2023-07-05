@@ -44,7 +44,7 @@ namespace CampCorr.Controllers
             }
             
             var listaResultadoVm = _resultadoService.MontaListaResultadoVm(etapa);
-            ViewBag.ultimaEtapa = _etapaService.VerificaSeUltimaEtapa(etapa.EtapaId);
+            ViewBag.primeiraUltimaEtapa = _etapaService.VerificaSePrimeiraOuUltimaEtapa(etapa.EtapaId);
             ViewBag.listaResultado = listaResultadoVm;
             ViewBag.numeroEtapa = etapa.NumeroEvento;
 
