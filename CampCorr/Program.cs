@@ -10,9 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Adicione serviços ao container.
 
-//var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 var connection = String.Empty;
 if (builder.Environment.IsDevelopment())
 {
@@ -21,7 +20,6 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    //connection = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
     builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
     connection = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
 }
@@ -35,7 +33,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    //Default Password Settings
+    // Configurações padrão de senha
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
@@ -44,7 +42,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 0;
 });
 
-//Repositorios
+// Repositórios
 builder.Services.AddTransient<ICampeonatoRepository, CampeonatoRepository>();
 builder.Services.AddTransient<ICircuitoRepository, CircuitoRepository>();
 builder.Services.AddTransient<IEquipeRepository, EquipeRepository>();
@@ -55,7 +53,8 @@ builder.Services.AddTransient<IResultadoRepository, ResultadoRepository>();
 builder.Services.AddTransient<ITemporadaRepository, TemporadaRepository>();
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ILogsRepository, LogsRepository>();
-//Servicos
+
+// Serviços
 builder.Services.AddScoped<ICalculoService, CalculoService>();
 builder.Services.AddScoped<ICampeonatoService, CampeonatoService>();
 builder.Services.AddScoped<ICircuitoService, CircuitoService>();
@@ -70,15 +69,6 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IUtilitarioService, UtilitarioService>();
 builder.Services.AddScoped<ILogService, LogService>();
 
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("Admin", politica =>
-//    {
-//        politica.RequireRole("Admin");
-//    });
-//});
-
-
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddMemoryCache();
@@ -86,12 +76,11 @@ builder.Services.AddSession();
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
+// Configure o pipeline de solicitação HTTP.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // O valor padrão do HSTS é 30 dias. Você pode alterar isso para cenários de produção, consulte https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -124,26 +113,23 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
-      name: "areas",
-      pattern: "{area:exists}/{controller=Campeonatos}/{action=Index}/{id?}"
+        name: "areas",
+        pattern: "{area:exists}/{controller=Campeonatos}/{action=Index}/{id?}"
     );
 
+    endpoints.MapControllerRoute(
+        name: "admin",
+        pattern: "admin/{action=Index}/{id?}",
+        defaults: new { controller = "Campeonatos" });
+
+    endpoints.MapControllerRoute(
+        name: "piloto",
+        pattern: "piloto/{action=Index}/{id?}",
+        defaults: new { controller = "Pilotos" });
+
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
 });
-
-
-app.MapControllerRoute(
-    name: "admin",
-    pattern: "admin/{action=Index}/{id?}",
-    defaults: new { controller = "Campeonatos" });
-
-app.MapControllerRoute(
-    name: "piloto",
-    pattern: "piloto/{action=Index}/{id?}",
-    defaults: new { controller = "Pilotos" });
-
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
