@@ -2,10 +2,16 @@
     //ViewData["NomeCampeonato"] = "NomeCampeonato";
     List<ResultadoCorridaViewModel> resultadoCorridaViewModel = ViewBag.listaResultado;
     var nomeCampeonato = ViewBag.nomeCampeonato;
+    Etapa etapa = ViewBag.etapa;
     ViewData["LocalEnvento"] = "nomeCircuito";
 }
 <div>
     <h1>Resultados da etapa @ViewBag.numeroEtapa</h1>
+    <div>
+        <h3>@etapa.Circuito.Nome</h3>
+        <h4>Traçado: @etapa.Traçado</h4>
+        <h5>Data e hora da corrida: @etapa.Data</h5>
+    </div>
     @if (ViewBag.primeiraUltimaEtapa == "ultima" || ViewBag.primeiraUltimaEtapa == null)
     {
         <a class="btn btn-outline-light" asp-action="ResultadoPorEtapa" asp-route-nomeCampeonato="@ViewBag.nomeCampeonato" asp-route-numeroEtapa="@ViewBag.numeroEtapa" asp-route-navegacao=-1> &lt anterior</a>

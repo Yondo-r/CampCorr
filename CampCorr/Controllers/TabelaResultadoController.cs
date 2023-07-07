@@ -11,14 +11,16 @@ namespace CampCorr.Controllers
         private readonly ITemporadaService _temporadaService;
         private readonly IEtapaService _etapaService;
         private readonly IUtilitarioService _utilitarioService;
+        private readonly ICircuitoService _circuitoService;
 
-        public TabelaResultadoController(ICampeonatoService campeonatoService, IResultadoService resultadoService, ITemporadaService temporadaService, IEtapaService etapaService, IUtilitarioService utilitarioService)
+        public TabelaResultadoController(ICampeonatoService campeonatoService, IResultadoService resultadoService, ITemporadaService temporadaService, IEtapaService etapaService, IUtilitarioService utilitarioService, ICircuitoService circuitoService)
         {
             _campeonatoService = campeonatoService;
             _resultadoService = resultadoService;
             _temporadaService = temporadaService;
             _etapaService = etapaService;
             _utilitarioService = utilitarioService;
+            _circuitoService = circuitoService;
         }
 
         public async Task<IActionResult> ResultadoAtual(string nomeCampeonato)
@@ -44,6 +46,8 @@ namespace CampCorr.Controllers
             }
             
             var listaResultadoVm = _resultadoService.MontaListaResultadoVm(etapa);
+            etapa.Circuito = await _circuitoService.BuscarCircuitoAsync(etapa.CircuitoId);
+            ViewBag.etapa = etapa;
             ViewBag.primeiraUltimaEtapa = _etapaService.VerificaSePrimeiraOuUltimaEtapa(etapa.EtapaId);
             ViewBag.listaResultado = listaResultadoVm;
             ViewBag.numeroEtapa = etapa.NumeroEvento;
