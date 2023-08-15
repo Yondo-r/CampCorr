@@ -1,8 +1,20 @@
 ﻿@model List<CampCorr.ViewModels.ResultadoCorridaViewModel>
 @{
-    int count = 0;
+    var count = 1;
+    var campeao = @Model.OrderByDescending(x => x.Pontos).FirstOrDefault().NomePiloto;
 }
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <h1 class="area CampeaoText ">♠ Campeão ♠</h1>
+      <h1 class="CampeaoText">@campeao</h1>
+    </div>
+  </div>
+</div>
 <h1>Resultados</h1>
+<hr />
+
+
 <div class="table-responsive">
 
     <table class="table dataTable table-dark table-striped table-bordered" id="tabelaResultadoTemporada">
@@ -30,6 +42,13 @@
         </tbody>
     </table>
 </div>
+<div class="fireworks-container paused">
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+</div>
 <hr />
 <div>
     <a asp-action="Index">Voltar a lista de etapas</a>
@@ -47,5 +66,12 @@
                 ]
             });
         })
+
+        //const startButton = document.getElementById('startButton');
+        //const fireworksContainer = document.querySelector('.fireworks-container');
+
+        //startButton.addEventListener('click', () => {
+        //    fireworksContainer.classList.add('visible');
+        //});
     </script>
 }
