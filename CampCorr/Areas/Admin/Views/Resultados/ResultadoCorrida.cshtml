@@ -155,7 +155,9 @@
                 searching: false,
                 lengthChange: false,
                 "pageLength": 30,
+                order:[2, 'asc'],
                 "columnDefs": [
+                    { "type": 'num', targets: 1 },
                     { "orderable": true, "targets": [1, 2, 4, 6] },
                     { "orderable": false, "targets": '_all' }
                 ]

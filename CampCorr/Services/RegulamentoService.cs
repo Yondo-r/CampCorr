@@ -21,7 +21,8 @@ namespace CampCorr.Services
         {
             return _regulamentoRepository.BuscarRegulamentoPorEtapaId(etapaId);
         }
-        public List<Regulamento> ListarRegulamentos(){
+        public List<Regulamento> ListarRegulamentos()
+        {
             return  _regulamentoRepository.ListarRegulamentos();
         }
     }

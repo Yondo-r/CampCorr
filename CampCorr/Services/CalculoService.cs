@@ -237,7 +237,15 @@ namespace CampCorr.Services
                 {
                     for (int i = 0; i < resultadoCorridas.Count(); i++)
                     {
-                        resultadoCorridas[i].Pontos = (listaPontuação[i] - resultadoCorridas[i].PontosPenalidade);
+                        //Caso exista mais que 20 pilotos, do 21 para baixo a pontuação é zerada
+                        if (i > 19)
+                        {
+                            resultadoCorridas[i].Pontos = resultadoCorridas[i].PontosPenalidade;
+                        }
+                        else
+                        {
+                            resultadoCorridas[i].Pontos = (listaPontuação[i] - resultadoCorridas[i].PontosPenalidade);
+                        }
                         if (resultadoCorridas[i].MelhorVolta == true)
                         {
                             resultadoCorridas[i].Pontos += 2;

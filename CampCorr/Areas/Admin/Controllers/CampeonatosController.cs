@@ -130,7 +130,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
             resultado = resultado.BuildMockDbSet().Object;
 
-            var model = await PagingList.CreateAsync(resultado, 5, pageindex, sort, "UserLogin");
+            var model = await PagingList.CreateAsync(resultado, 10, pageindex, sort, "UserLogin");
             model.RouteValue = new RouteValueDictionary { { "filtro.UserLogin", filtro.UserLogin } };
             return View(model);
         }

@@ -46,7 +46,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
         public IActionResult Create()
         {
-            ViewBag.Regulamentos = _regulamentoService.ListarRegulamentos();
+            ViewBag.Regulamentos = _regulamentoService.ListarRegulamentos().ToList();
             TempData["campeonatoId"] = campeonatoId;
             return View();
         }

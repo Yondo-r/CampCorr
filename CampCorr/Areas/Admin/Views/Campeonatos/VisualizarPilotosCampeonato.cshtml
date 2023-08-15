@@ -2,7 +2,8 @@
 
 <h2 class="fw-bold mb-2 text-uppercase">Pilotos</h2>
 <hr />
-<h4>Pilotos já adicionados no campeonato</h4>
+<h4>Pilotos já adicionados no campeonato(@Model.Count()) </h4>
+<a class="btn btn-secondary" asp-action="BuscarPilotos">Adicionar novos pilotos</a>
 <div class="row">
     <div class="col-md-12">
         <table class="table text-white">
@@ -18,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.OrderBy(x => x.NomePiloto))
                 {
                     <tr>
                         <td>
@@ -39,7 +40,7 @@
     </div>
 </div>
 
-<a class="btn btn-secondary" asp-action="BuscarPilotos">Adicionar novos pilotos</a>
+
 
 <div>
     <a asp-action="Edit" asp-controller="Campeonatos">Voltar</a>
