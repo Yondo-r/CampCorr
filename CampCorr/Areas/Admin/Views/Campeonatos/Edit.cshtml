@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "Editar";
-    var logo = ViewBag.Logo;
 }
 
 <h1>Editar</h1>
@@ -33,7 +32,7 @@
             }
             else
             {
-                <img src="@logo" alt="Imagem" width="100" height="72" />
+                <img src="@Model.Logo" alt="Imagem" width="100" height="72" />
                 <hr />
                 <div>
                     ALterar logo
@@ -83,3 +82,14 @@
 <div>
     <a asp-action="Index" asp-area="" asp-controller="Home">Voltar a página inicial</a>
 </div>
+@section scripts{
+    <script>
+        $(document).ready(function() {
+            
+        });
+
+
+
+
+    </script>
+}

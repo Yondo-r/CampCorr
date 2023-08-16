@@ -108,7 +108,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
                 campeonatoVM.Temporadas = _temporadasService.ListarTemporadasDoCampeonato(campeonato.CampeonatoId);
                 if (campeonato.Logo != null && campeonato.Logo.Length > 0)
                 {
-                    ViewBag.Logo = campeonato.Logo;
+                    campeonatoVM.Logo = _utilitarioService.MontaImagem(campeonato.Logo);
                 }
                 return View(campeonatoVM);
             }
