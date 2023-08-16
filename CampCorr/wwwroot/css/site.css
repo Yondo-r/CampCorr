@@ -337,3 +337,23 @@ body {
         text-shadow: 0px 0px 10px #fff, 0px 0px 10px #fff, 0px 0px 25px #fff, 0px 0px 25px #fff, 0px 0px 25px #fff, 0px 0px 25px #fff, 0px 0px 25px #fff, 0px 0px 25px #fff, 0px 0px 50px #fff, 0px 0px 50px #fff, 0px 0px 50px #7B96B8, 0px 0px 150px #7B96B8, 0px 10px 100px #7B96B8, 0px 10px 100px #7B96B8, 0px 10px 100px #7B96B8, 0px 10px 100px #7B96B8, 0px -10px 100px #7B96B8, 0px -10px 100px #7B96B8;
     }
 }
+
+/* Estilos para a tabela com barra de rolagem dark */
+#tabelaResultadoEtapaWrapper {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+    /* Estilos para a barra de rolagem vertical */
+    #tabelaResultadoEtapaWrapper::-webkit-scrollbar {
+        width: 15px; /* Largura da barra de rolagem */
+    }
+
+    #tabelaResultadoEtapaWrapper::-webkit-scrollbar-thumb {
+        background-color: #555; /* Cor do polegar da barra de rolagem */
+        border-radius: 5px; /* Borda arredondada do polegar da barra de rolagem */
+    }
+
+    #tabelaResultadoEtapaWrapper::-webkit-scrollbar-track {
+        background-color: #333; /* Cor da trilha da barra de rolagem */
+    }
