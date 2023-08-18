@@ -123,28 +123,18 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int circuitoId, int anoTemporada, [Bind("EtapaId,Traçado,Data,NumeroEvento,TemporadaId")] Etapa etapa)
+        public async Task<IActionResult> Edit(int anoTemporada,  Etapa etapa)
         {
             etapa.TemporadaId = await _temporadasService.BuscarIdTemporadaAsync(nomeUsuario, anoTemporada);
-            //etapa.EtapaId = _etapaRepository.BuscarIdEtapaPorNomeUsuario(nomeUsuario, etapa.NumeroEvento.Substring(0, 1), anoTemporada);
             if (anoTemporada != etapa.Data.Year)
             {
                 ModelState.AddModelError("Data", "O ano da corrida não pode ser diferente do ano da temporada");
-            }
-            //verifica se foi selecionado um novo kartodromo ou se será usado o mesmo
-            if (etapa.CircuitoId == 0)
-            {
-                etapa.CircuitoId = circuitoId;
-                //_context.Update(etapa);
-                //await _context.SaveChangesAsync();
             }
 
             if (ModelState.IsValid)
             {
                 _etapaService.Atualizar(etapa);
             }
-
-
 
             TempData["NumeroEvento"] = etapa.NumeroEvento;
             return RedirectToAction("Edit", "Temporadas", new { ano = anoTemporada });
