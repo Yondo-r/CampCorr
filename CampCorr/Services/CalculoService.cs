@@ -109,14 +109,167 @@ namespace CampCorr.Services
 
                 listaResultadoEtapasPorPiloto.Add(resultadoTemporadaPiloto);
             }
-            listaResultadoEtapasPorPiloto = OrdernarResultadoAkgp(listaResultadoEtapasPorPiloto, listaPilotos); //listaResultadoEtapasPorPiloto.OrderByDescending(x => x.Pontos).ThenByDescending(x => x.NumeroVitorias).ToList();
+            listaResultadoEtapasPorPiloto = OrdernarResultadoComCriterioDesempate(listaResultadoEtapasPorPiloto, listaPilotos); //listaResultadoEtapasPorPiloto.OrderByDescending(x => x.Pontos).ThenByDescending(x => x.NumeroVitorias).ToList();
 
 
 
             return listaResultadoEtapasPorPiloto;
         }
 
-        private List<ResultadoTemporada> OrdernarResultadoAkgp(List<ResultadoTemporada> listaResultadoEtapasPorPiloto, List<PilotoViewModel> listaPilotos)
+        //Os resultados são ordenados por quantidade de pontos obedecendo o critério de desempate para o que teve mais vitórias, depois mais segundo lugar e assim por diante.
+        
+
+        private List<ResultadoTemporada> CalcularResultadoTemporadaF1(Temporada temporada)
+        {
+            List<ResultadoTemporada> listaResultadoEtapasPorPiloto = new List<ResultadoTemporada>();
+            List<PilotoViewModel> listaPilotos = _pilotoRepository.PreencherListaDePilotosTemporada(temporada.TemporadaId);
+                       
+            foreach (var piloto in listaPilotos)
+            {
+                List<ResultadoCorrida> resultadosDoPiloto = _resultadoRepository.ListarResultadoEtapa(temporada.TemporadaId, piloto.PilotoId);
+                //Ordena os resultados por pontos
+                resultadosDoPiloto = resultadosDoPiloto.OrderBy(x => x.Pontos).ToList();
+               
+                piloto.ResultadosPiloto = resultadosDoPiloto;
+                ResultadoTemporada resultadoTemporadaPiloto = new ResultadoTemporada();
+                foreach (var resultado in resultadosDoPiloto)
+                {
+                    int vitorias = 0;
+                    if (resultado.Posicao == 1)
+                        vitorias = 1;
+                    resultadoTemporadaPiloto.NumeroVitorias += vitorias;
+                    resultadoTemporadaPiloto.Pontos += (int)resultado.Pontos;
+                }
+                resultadoTemporadaPiloto.TemporadaId = temporada.TemporadaId;
+                resultadoTemporadaPiloto.PilotoId = resultadosDoPiloto[0].PilotoId;
+                resultadoTemporadaPiloto.EquipeId = resultadosDoPiloto[0].EquipeId;
+
+                listaResultadoEtapasPorPiloto.Add(resultadoTemporadaPiloto);
+            }
+            listaResultadoEtapasPorPiloto = OrdernarResultadoComCriterioDesempate(listaResultadoEtapasPorPiloto, listaPilotos); //listaResultadoEtapasPorPiloto.OrderByDescending(x => x.Pontos).ThenByDescending(x => x.NumeroVitorias).ToList();
+
+
+
+            return listaResultadoEtapasPorPiloto;
+
+        }
+
+        private bool CalcularResultadoEtapaAkgp(List<ResultadoCorrida> resultadoCorridas)
+        {
+            var existeMelhorVolta = resultadoCorridas.Any(x => x.MelhorVolta == true);
+            if (existeMelhorVolta)
+            {
+                var regrasAkgp = new RegrasAkgp();
+                var listaPontuação = regrasAkgp.MontarListaPontos();
+
+                //Zera a pontução do piloto ausente
+                foreach (var item in resultadoCorridas)
+                {
+                    if (item.Posicao == 0)
+                    {
+                        item.Pontos = 0;
+                    }
+                    if (item.Posicao < 0)
+                    {
+                        item.Posicao = item.Posicao * (-1);
+                    }
+                }
+                //Cria uma lista somente com os pilotos presentes
+                var ResultadoPilotosPresentes = resultadoCorridas.Where(x => x.Posicao != 0).ToList();
+                //Ordena os resultados por posição para poder distribuir os pontos
+                resultadoCorridas = ResultadoPilotosPresentes.OrderBy(x => x.Posicao).ToList();
+                //Verifica se é a ultima etapa.
+                if (_etapaService.VerificaSePrimeiraOuUltimaEtapa(resultadoCorridas[0].EtapaId) == "ultima")
+                {
+                    for (int i = 0; i < resultadoCorridas.Count(); i++)
+                    {
+                        //⦁	A última etapa do campeonato terá a sua pontuação dobrada,
+                        //com exceção da pontuação de melhor volta.
+                        //Sendo assim o 1º colocado receberá 100 pontos, o 2º colocado receberá 80 pontos, o 3º colocado receberá 70 pontos e assim sucessivamente.
+                        resultadoCorridas[i].Pontos = ((listaPontuação[i] * 2) - resultadoCorridas[i].PontosPenalidade);
+                        if (resultadoCorridas[i].MelhorVolta == true)
+                        {
+                            resultadoCorridas[i].Pontos += 2;
+                        }
+                    }
+
+                }
+                else
+                {
+                    for (int i = 0; i < resultadoCorridas.Count(); i++)
+                    {
+                        //Caso exista mais que 20 pilotos, do 21 para baixo a pontuação é zerada
+                        if (i > 19)
+                        {
+                            resultadoCorridas[i].Pontos = resultadoCorridas[i].PontosPenalidade;
+                        }
+                        else
+                        {
+                            resultadoCorridas[i].Pontos = (listaPontuação[i] - resultadoCorridas[i].PontosPenalidade);
+                        }
+                        if (resultadoCorridas[i].MelhorVolta == true)
+                        {
+                            resultadoCorridas[i].Pontos += 2;
+                        }
+                    }
+                }
+
+                return true;
+            }
+            return false;
+        }
+
+        private bool CalcularResultadoEtapaF1(List<ResultadoCorrida> resultadoCorridas)
+        {
+            var existeMelhorVolta = resultadoCorridas.Any(x => x.MelhorVolta == true);
+            if (existeMelhorVolta)
+            {
+                //Verifica se o piloto que fez a volta mais rapida está no Top10
+                var regrasF1 = new RegrasF1();
+                var listaPontuação = regrasF1.MontarListaPontos();
+
+                //Zera a pontução do piloto ausente
+                foreach (var item in resultadoCorridas)
+                {
+                    if (item.Posicao == 0)
+                    {
+                        item.Pontos = 0;
+                    }
+                    //Corrige posição cadastrada como negativo
+                    if (item.Posicao < 0)
+                    {
+                        item.Posicao = item.Posicao * (-1);
+                    }
+                }
+                //Cria uma lista somente com os pilotos presentes
+                var ResultadoPilotosPresentes = resultadoCorridas.Where(x => x.Posicao != 0).ToList();
+                //Ordena os resultados por posição para poder distribuir os pontos
+                resultadoCorridas = ResultadoPilotosPresentes.OrderBy(x => x.Posicao).ToList();
+
+                for (int i = 0; i < resultadoCorridas.Count(); i++)
+                {
+                    //Caso exista mais que 10 pilotos, do 11 para baixo a pontuação é zerada
+                    if (i > 10)
+                    {
+                        resultadoCorridas[i].Pontos = resultadoCorridas[i].PontosPenalidade;
+                    }
+                    else
+                    {
+                        resultadoCorridas[i].Pontos = (listaPontuação[i] - resultadoCorridas[i].PontosPenalidade);
+                    }
+                    //Caso o piloto tenha dado a melhor volta e tenha ficado entre os 10 primeiros ele ganha um ponto extra
+                    if (resultadoCorridas[i].MelhorVolta == true && resultadoCorridas[i].Posicao < 11)
+                    {
+                        resultadoCorridas[i].Pontos += 1;
+                    }
+                }
+
+                return true;
+            }
+            return false;
+        }
+
+        private List<ResultadoTemporada> OrdernarResultadoComCriterioDesempate(List<ResultadoTemporada> listaResultadoEtapasPorPiloto, List<PilotoViewModel> listaPilotos)
         {
             List<ResultadoCorrida> resultadoOrdenado = new List<ResultadoCorrida>();
             foreach (var piloto in listaPilotos)
@@ -177,90 +330,15 @@ namespace CampCorr.Services
                                    .ThenByDescending(p => p.Posicoes12)
                                    .ToList();
 
-            
+
             listaResultadoEtapasPorPiloto = listaResultadoEtapasPorPiloto.OrderBy(x => list.FirstOrDefault(y => y.PilotoId == x.PilotoId)?.Pontos).ToList();
 
-                        
+
             //for (int i = 0; i < listaResultadoEtapasPorPiloto.Count(); i++)
             //{
             //    listaResultadoEtapasPorPiloto[i].Posicao = list.FirstOrDefault(x => x.PilotoId == listaResultadoEtapasPorPiloto[i].PilotoId).;
             //}
             return listaResultadoEtapasPorPiloto;
-        }
-
-        private List<ResultadoTemporada> CalcularResultadoTemporadaF1(Temporada temporada)
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool CalcularResultadoEtapaAkgp(List<ResultadoCorrida> resultadoCorridas)
-        {
-            var existeMelhorVolta = resultadoCorridas.Any(x => x.MelhorVolta == true);
-            if (existeMelhorVolta)
-            {
-                var regrasAkgp = new RegrasAkgp();
-                var listaPontuação = regrasAkgp.MontarListaPontos();
-                
-                //Zera a pontução do piloto ausente
-                foreach (var item in resultadoCorridas)
-                {
-                    if (item.Posicao == 0)
-                    {
-                        item.Pontos = 0;
-                    }
-                    if (item.Posicao < 0)
-                    {
-                        item.Posicao = item.Posicao * (-1);
-                    }
-                }
-                //Cria uma lista somente com os pilotos presentes
-                var ResultadoPilotosPresentes = resultadoCorridas.Where(x=>x.Posicao !=0).ToList();
-                //Ordena os resultados por posição para poder distribuir os pontos
-                resultadoCorridas = ResultadoPilotosPresentes.OrderBy(x => x.Posicao).ToList();
-                //Verifica se é a ultima etapa.
-                if (_etapaService.VerificaSePrimeiraOuUltimaEtapa(resultadoCorridas[0].EtapaId) == "ultima")
-                {
-                    for (int i = 0; i < resultadoCorridas.Count(); i++)
-                    {
-                        //⦁	A última etapa do campeonato terá a sua pontuação dobrada,
-                        //com exceção da pontuação de melhor volta.
-                        //Sendo assim o 1º colocado receberá 100 pontos, o 2º colocado receberá 80 pontos, o 3º colocado receberá 70 pontos e assim sucessivamente.
-                        resultadoCorridas[i].Pontos = ((listaPontuação[i] * 2) - resultadoCorridas[i].PontosPenalidade);
-                        if (resultadoCorridas[i].MelhorVolta == true)
-                        {
-                            resultadoCorridas[i].Pontos += 2;
-                        }
-                    }
-
-                }
-                else
-                {
-                    for (int i = 0; i < resultadoCorridas.Count(); i++)
-                    {
-                        //Caso exista mais que 20 pilotos, do 21 para baixo a pontuação é zerada
-                        if (i > 19)
-                        {
-                            resultadoCorridas[i].Pontos = resultadoCorridas[i].PontosPenalidade;
-                        }
-                        else
-                        {
-                            resultadoCorridas[i].Pontos = (listaPontuação[i] - resultadoCorridas[i].PontosPenalidade);
-                        }
-                        if (resultadoCorridas[i].MelhorVolta == true)
-                        {
-                            resultadoCorridas[i].Pontos += 2;
-                        }
-                    }
-                }
-
-                return true;
-            }
-            return false;
-        }
-
-        private bool CalcularResultadoEtapaF1(List<ResultadoCorrida> resultadoCorridas)
-        {
-            return false;
         }
 
     }
