@@ -9,5 +9,6 @@ namespace CampCorr.Models
         public string Nome { get; set; }
         [Display(Name ="Endereço do Circuito")]
         public string Endereço { get; set; }
+        public string Tipo { get; set; }
     }
 }

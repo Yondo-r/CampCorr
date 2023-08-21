@@ -21,6 +21,14 @@ namespace CampCorr.Services
         {
             return _circuitoRepository.ListarCircuitos();
         }
+        public async Task<List<Circuito>> ListarCircuitosAsync(string tipo)
+        {
+            return await _circuitoRepository.ListarCircuitosAsync(tipo);
+        }
+        public List<string> ListarTipos()
+        {
+            return _circuitoRepository.ListarTipos();
+        }
         public async Task<Circuito> BuscarCircuitoAsync(int circuitoId)
         {
             return await _circuitoRepository.BuscarCircuitoAsync(circuitoId);

@@ -25,6 +25,8 @@ namespace CampCorr.ViewModels
         public string Regulamento { get; set; }
         [Display(Name = "Nome do traçado")]
         public string Traçado { get; set; }
+        [Display(Name = "Tipo de circuito")]
+        public string Tipo { get; set; }
         [Required(ErrorMessage = "Informe o dia e a hora da corrida")]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "0:dd/MM hh:mm")]
         [Display(Name = "Data e hora da corrida")]

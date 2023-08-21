@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Criar";
+    var tipoCircuito = ViewBag.tipo;
 }
 
 <h1>Adicionar</h1>
@@ -10,39 +11,63 @@
 
 <hr />
 
-    <div class="form-outline form-white mb-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input name="etapaAtual" hidden id="etapaAtual" value=@TempData["etapaAtual"] />
-            <input type="hidden" name="anoTemporada" value=@TempData["anoTemporada"] />
-            <div class="form-group">
-                <label asp-for="Traçado" class="control-label"></label>
-                <input asp-for="Traçado" class="form-control" />
-                <span asp-validation-for="Traçado" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Data" class="control-label"></label>
-                <input asp-for="Data" class="form-control" />
-                <span asp-validation-for="Data" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NomeCircuito" class="control-label"></label>
-                @Html.DropDownList("CircuitoId", new SelectList(Model.Circuitos, "CircuitoId", "Nome"), new {@class = "form-select"})
-                <span asp-validation-for="NomeCircuito" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NumeroEvento" class="control-label"></label>
-                <span>@TempData["NumeroEvento"]</span>
-                <input asp-for="NumeroEvento" hidden value="@TempData["NumeroEvento"]" class="form-control" />
-            </div>
-            <hr />
+<div class="form-outline form-white mb-4">
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input name="etapaAtual" hidden id="etapaAtual" value=@TempData["etapaAtual"] />
+        <input type="hidden" name="anoTemporada" value=@TempData["anoTemporada"] />
+        <div class="form-group">
+            <label asp-for="Tipo" class="control-label"></label>
+            <select asp-for="Tipo" class="form-select" id="Tipo">
+                <option value="">Selecione um tipo</option>
+                @foreach (var tipo in ViewBag.tipo)
+                {
+                    <option value="@tipo">@tipo</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Traçado" class="control-label"></label>
+            <input asp-for="Traçado" class="form-control" />
+            <span asp-validation-for="Traçado" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Data" class="control-label"></label>
+            <input asp-for="Data" class="form-control" />
+            <span asp-validation-for="Data" class="text-danger"></span>
+        </div>
+        <div class="form-group" id="circuitosLista">
+            <label asp-for="NomeCircuito" class="control-label"></label>
+            @Html.DropDownList("CircuitoId", new SelectList(Model.Circuitos, "CircuitoId", "Nome"), new {@class = "form-select"})
+            <span asp-validation-for="NomeCircuito" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NumeroEvento" class="control-label"></label>
+            <span>@TempData["NumeroEvento"]</span>
+            <input asp-for="NumeroEvento" hidden value="@TempData["NumeroEvento"]" class="form-control" />
+        </div>
+        <hr />
 
-            <div class="form-group">
-                <input type="submit" value="Salvar" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+        <div class="form-group">
+            <input type="submit" value="Salvar" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
 
 <div>
     <a asp-action="Edit" asp-controller="Temporadas" asp-route-ano="@Model.AnoTemporada">Voltar</a>
 </div>
+
+@section scripts{
+
+    <script>
+        $(document).ready(function() {
+            $("#Tipo").change(function() {
+                var selectedTipo = $(this).val();
+
+                // Realize uma solicitação AJAX para o servidor para obter os circuitos filtrados
+                filtraCircuito("@Url.Action("PostFiltraCircuitos")", selectedTipo)
+            });
+        });
+    </script>
+}

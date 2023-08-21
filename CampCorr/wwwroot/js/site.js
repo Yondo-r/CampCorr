@@ -116,3 +116,33 @@ function pilotosEquipeRemover(url, pilotoIds, equipeIds, ano) {
         }
     })
 }
+
+function filtraCircuito(url, filtro) {
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {
+            tipoCircuito: filtro
+        },
+        success: function (result) {
+            var dropdown = $("#CircuitoId"); // Elemento da dropdownlist de circuitos
+            dropdown.empty(); // Limpa os itens existentes
+
+            // Preenche a dropdownlist com os circuitos filtrados
+            for (var i = 0; i < result.length; i++) {
+                var option = $("<option></option>")
+                    .attr("value", result[i].circuitoId)
+                    .text(result[i].nome);
+
+                dropdown.append(option);
+            }
+
+            console.log("filtro selecionado: " + url);
+            //window.location.href = '/Admin/Etapas/create?anoTemporada=' + ano
+        },
+        error: function (req, status, error) {
+            console.log(status)
+            console.log(req.responseText)
+        }
+    })
+}

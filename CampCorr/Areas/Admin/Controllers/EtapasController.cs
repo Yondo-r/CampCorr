@@ -51,6 +51,7 @@ namespace CampCorr.Areas.Campeonato.Controllers
 
             TempData["NumeroEvento"] = etapaAtual.ToString() + " de " + temporada.QuantidadeEtapas;
             TempData["anoTemporada"] = anoTemporada;
+            ViewBag.tipo = _circuitoService.ListarTipos();
             return View(campeonatoTemporadaVm);
         }
 
@@ -150,25 +151,12 @@ namespace CampCorr.Areas.Campeonato.Controllers
             return RedirectToAction("Edit", "Temporadas", new { ano = ano });
         }
 
-        //public IActionResult AdicionarPiloto()
-        //{
-        //    return View();
-        //}
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> AdicionarPiloto(Models.Piloto piloto, int ano)
-        //{
-        //    var temporada = await _temporadasService.BuscarTemporadaAsync(campeonatoId, ano);
-        //    if (piloto != null && temporada != null)
-        //    {
-
-        //        temporada.Pilotos.Add(piloto);
-        //        await _context.SaveChangesAsync();
-        //        return View();
-
-        //    }
-        //    return View();
-        //}
+        [HttpPost]
+        public async Task<JsonResult> PostFiltraCircuitos(string tipoCircuito)
+        {
+            var listaCircuitos = await _circuitoService.ListarCircuitosAsync(tipoCircuito);
+            return new JsonResult(listaCircuitos);
+        }
 
     }
 }

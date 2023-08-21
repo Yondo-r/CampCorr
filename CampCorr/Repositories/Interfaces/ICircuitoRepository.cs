@@ -6,6 +6,8 @@ namespace CampCorr.Repositories.Interfaces
     {
         void Add(Circuito circuito);
         List<Circuito> ListarCircuitos();
+        Task<List<Circuito>> ListarCircuitosAsync(string tipo);
+        List<string> ListarTipos();
         Task<Circuito> BuscarCircuitoAsync(int circuitoId);
     }
 }
