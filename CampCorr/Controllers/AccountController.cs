@@ -122,6 +122,51 @@ namespace CampCorr.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public ActionResult EsqueceuSenha()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EsqueceuSenha(string UserName, string senhaAntiga, string senhaNova, string repeteSenhaNova)
+        {
+            try
+            {
+                var user = await _userManager.FindByNameAsync(UserName);
+
+                if (repeteSenhaNova != senhaNova)
+                {
+                    ModelState.AddModelError("erro", "A senha nova digitada é diferente da digitada na repetição");
+                    return View();
+                }
+                if (user == null || !await _userManager.CheckPasswordAsync(user, senhaAntiga))
+                {
+                    ModelState.AddModelError("erro", "Usuário ou senha inválidos");
+                    return View();
+                }
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, senhaNova);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Login");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.ToString());
+                    }
+                    return View();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public IActionResult AccessDenied()
         {
             return View();
