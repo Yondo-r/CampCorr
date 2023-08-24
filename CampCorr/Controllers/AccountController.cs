@@ -122,7 +122,7 @@ namespace CampCorr.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public ActionResult EsqueceuSenha()
+        public ActionResult AlteraSenha()
         {
             return View();
         }
