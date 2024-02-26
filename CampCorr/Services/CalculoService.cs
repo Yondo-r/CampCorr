@@ -333,11 +333,12 @@ namespace CampCorr.Services
 
             listaResultadoEtapasPorPiloto = listaResultadoEtapasPorPiloto.OrderBy(x => list.FirstOrDefault(y => y.PilotoId == x.PilotoId)?.Pontos).ToList();
 
-
-            //for (int i = 0; i < listaResultadoEtapasPorPiloto.Count(); i++)
-            //{
-            //    listaResultadoEtapasPorPiloto[i].Posicao = list.FirstOrDefault(x => x.PilotoId == listaResultadoEtapasPorPiloto[i].PilotoId).;
-            //}
+            var posicao = 1;
+            for (int i = listaResultadoEtapasPorPiloto.Count()-1; i >= 0; i--)
+            {
+                listaResultadoEtapasPorPiloto[i].Posicao = posicao;
+                posicao++;
+            }
             return listaResultadoEtapasPorPiloto;
         }
 

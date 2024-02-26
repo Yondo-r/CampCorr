@@ -18,7 +18,7 @@
         <input type="hidden" asp-for="TemporadaId" value=@Model.TemporadaId/>
         <div class="form-group">
             <label asp-for="AnoTemporada" class="control-label"></label>
-            <input asp-for="AnoTemporada" class="form-control" />
+            <input disabled class="form-control" value="@Model.AnoTemporada"/>
             <span asp-validation-for="AnoTemporada" class="text-danger"></span>
         </div>
         <div class="form-group">
